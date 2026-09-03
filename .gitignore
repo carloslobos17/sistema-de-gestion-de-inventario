@@ -1,0 +1,33 @@
+# --- Dependencias ---
+node_modules/
+**/node_modules/
+
+# --- Logs y Erros ---
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# --- Builds / Compilación ---
+dist/
+dist-ssr/
+build/
+*.local
+
+# --- Variables de Entorno y Secretos ---
+.env
+.env.*
+!.env.example
+
+# --- Editores y Sistema Operativo ---
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
