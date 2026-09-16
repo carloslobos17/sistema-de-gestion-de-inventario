@@ -4,7 +4,7 @@ Repositorio oficial del ERP para el control de **inventarios, finanzas, ventas y
 
 ---
 
-## 🛠️ Requisitos Previos
+##  Requisitos Previos
 
 Asegúrate de tener instalado en tu equipo:
 * **Node.js** (Versión 18 o superior recomendada)
@@ -13,7 +13,7 @@ Asegúrate de tener instalado en tu equipo:
 
 ---
 
-## ⚙️ Configuración Inicial
+##  Configuración Inicial
 
 1. **Clonar el repositorio y cambiar a la rama de desarrollo:**
    ```bash
@@ -34,31 +34,36 @@ Asegúrate de tener instalado en tu equipo:
 
    > ⚠️ **Importante:** Nunca subas el archivo `.env` al repositorio (está protegido por el `.gitignore`).
 
-## 🗄️ Base de Datos y Migraciones
+##  Base de Datos y Migraciones
 
 1. **Instalar dependencias del Backend:**
-
-   Bash
-   ```
+```bash
    cd backend
    npm install
-   ```
+```
 
 2. **Ejecutar migraciones de Prisma:**
-   Sincroniza todas las tablas, enums e índices hacia tu MySQL local ejecutando:
+   Si es tu primera vez clonando el proyecto o si bajaste cambios de la rama `dev`, sincroniza tu base de datos local:
+```bash
+   npx prisma migrate dev
+```
 
-   Bash
-   ```
-   npx prisma migrate dev --name init_erp
-   ```
+> **Nota:** Si modificaste el archivo `schema.prisma` y necesitas crear una nueva migración, utiliza:
+```bash
+   npx prisma migrate dev --name nombre_descriptivo_aqui
+```
 
-3. **Prisma Studio (Opcional):**
+3. **Poblar la base de datos (Seeder):**
+   Es obligatorio ejecutar este comando la primera vez para crear los roles y el usuario administrador por defecto (`admin` / `admin123`):
+```bash
+   npx prisma db seed
+```
+
+4. **Prisma Studio (Opcional):**
    Si necesitas visualizar o administrar los datos de forma gráfica:
-
-   Bash
-   ```
+```bash
    npx prisma studio
-   ```
+```
 
 ## ▶️ Cómo Levantar el Proyecto
 
@@ -89,7 +94,7 @@ npm run dev
 
 ## 📁 Estructura del Proyecto
 
-Plaintext
+
 
 ```
 sistema-de-gestion-de-inventario/
@@ -112,7 +117,7 @@ sistema-de-gestion-de-inventario/
 ## 🛠️ Tecnologías Utilizadas
 
 - **Backend:** Node.js, Express.js, TypeScript, Prisma ORM, MySQL, JWT.
-- **Frontend:** React, TypeScript, Vite, Tailwind CSS.
+- **Frontend:** React, TypeScript, Vite, Tailwind CSS, Axios.
 
 ## 📌 Resumen de Comandos Principales
 
@@ -121,10 +126,12 @@ sistema-de-gestion-de-inventario/
 Bash
 
 ```
-npm install              # Instalar dependencias
-npm run dev              # Levantar servidor en desarrollo
-npx prisma migrate dev   # Aplicar migraciones
-npx prisma studio        # Interfaz gráfica de base de datos
+npm install                              # Instalar dependencias
+npm run dev                              # Levantar servidor en desarrollo
+npx prisma migrate dev                   # Aplicar migraciones existentes
+npx prisma migrate dev --name <nombre>   # Crear y aplicar una nueva migración tras cambios en schema.prisma
+npx prisma db seed                       # Ejecutar seeder de la base de datos (Roles y Admin inicial)
+npx prisma studio                        # Abrir interfaz gráfica de la base de datos
 ```
 
 ### Frontend (`/frontend`)
