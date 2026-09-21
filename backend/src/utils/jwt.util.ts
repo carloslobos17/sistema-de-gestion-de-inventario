@@ -21,7 +21,11 @@ export const generateTokens = (payload: JwtPayload) => {
     const accessToken = jwt.sign(payload, accessSecret, accessOptions);
     const refreshToken = jwt.sign(payload, refreshSecret, refreshOptions);
 
-    return { accessToken, refreshToken };
+
+    const { exp } = jwt.decode(refreshToken) as { exp: number };
+    const refreshExpiresAt = new Date(exp * 1000);
+
+    return { accessToken, refreshToken, refreshExpiresAt };
 };
 
 export const verifyAccessToken = (token: string): JwtPayload => {
