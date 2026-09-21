@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { loginSchema } from "../schemas/login.schema";
-import type { LoginCredentials, LoginFormErrors } from "../../../types/auth.types";
+import type { LoginCredentials, LoginFormErrors } from "../auth.types.ts";
 
 interface UseLoginFormProps {
     onSubmit: (credentials: LoginCredentials) => Promise<unknown>;

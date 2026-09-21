@@ -12,7 +12,7 @@ export interface LoginFormErrors {
 export interface LoginResponse {
     mensaje: string;
     datos: {
-        usuario: { id: number; nombre: string; apellido: string; rol_id: number; };
+        usuario: { id: number; nombre: string; apellido: string; rol_id: number; rol: string };
         accessToken: string;
         refreshToken: string;
     };

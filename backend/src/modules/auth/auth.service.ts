@@ -33,7 +33,8 @@ export class AuthService {
                 id: usuario.id,
                 nombre: usuario.nombre,
                 apellido: usuario.apellido,
-                rol_id: usuario.rol_id
+                rol_id: usuario.rol_id,
+                rol: usuario.rol
             },
             accessToken,
             refreshToken

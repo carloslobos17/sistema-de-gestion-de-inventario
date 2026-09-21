@@ -1,15 +1,12 @@
 import { loginWithCredentials } from "../api/auth.service";
-import type { LoginCredentials } from "../../../types/auth.types";
+import type { LoginCredentials } from "../auth.types.ts";
 
 export function useLogin() {
-
     const login = async (credentials: LoginCredentials) => {
-        // 1. Hacemos la petición a través del servicio
         const response = await loginWithCredentials(credentials);
 
-        // 2. Aquí prepararemos la sesión (Guardar en localStorage/Context)
-        console.log("Tokens listos para guardar:", response.datos.accessToken);
-        alert(`¡Bienvenido ${response.datos.usuario.nombre}! Login exitoso.`);
+        localStorage.setItem("token", response.datos.accessToken);
+        localStorage.setItem("usuario", JSON.stringify(response.datos.usuario));
 
         return response;
     };

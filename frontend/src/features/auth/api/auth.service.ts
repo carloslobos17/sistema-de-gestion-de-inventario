@@ -1,6 +1,6 @@
 import { isAxiosError } from "axios";
 import { apiClient } from "../../../api/axiosConfig";
-import type { LoginCredentials, LoginResponse } from "../../../types/auth.types";
+import type { LoginCredentials, LoginResponse } from "../auth.types.ts";
 
 export async function loginWithCredentials(credentials: LoginCredentials): Promise<LoginResponse> {
     try {
