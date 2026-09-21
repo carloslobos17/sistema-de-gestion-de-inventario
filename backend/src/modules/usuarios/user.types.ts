@@ -8,10 +8,23 @@ export interface Usuario {
     fecha_creacion: Date;
 }
 
+
 // Solo para verificar credenciales en el login
 export interface UsuarioConCredenciales extends Usuario {
     password_hash: string;
     rol: string; // nombre del rol
+}
+
+export interface UsuarioListado extends Usuario {
+    rol: string;
+}
+
+export interface CrearUsuarioData {
+    rol_id: number;
+    nombre_usuario: string;
+    nombre: string;
+    apellido: string;
+    password_hash: string;
 }
 
 export interface RefreshTokenData {
@@ -23,6 +36,5 @@ export interface RefreshTokenData {
 }
 
 
-export interface UsuarioListado extends Usuario {
-    rol: string;
-}
+
+

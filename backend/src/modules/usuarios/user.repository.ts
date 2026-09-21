@@ -1,6 +1,6 @@
 // src/repositories/user.repository.ts
 import { prisma } from '../../config/db';
-import type { UsuarioConCredenciales, RefreshTokenData, UsuarioListado } from './user.types';
+import type { UsuarioConCredenciales, RefreshTokenData, UsuarioListado, CrearUsuarioData, Usuario } from './user.types';
 
 export class UserRepository {
     // Buscar un usuario activo por su username para el login
@@ -27,6 +27,29 @@ export class UserRepository {
 
         const { rol, ...usuario } = row;
         return { ...usuario, rol: rol.nombre };
+    }
+
+    async existsByUsername(nombre_usuario: string): Promise<boolean> {
+        const usuario = await prisma.usuario.findUnique({
+            where: { nombre_usuario },
+            select: { id: true }
+        });
+        return usuario !== null;
+    }
+
+    async create(data: CrearUsuarioData): Promise<Usuario> {
+        return prisma.usuario.create({
+            data,
+            select: {
+                id: true,
+                rol_id: true,
+                nombre_usuario: true,
+                nombre: true,
+                apellido: true,
+                activo: true,
+                fecha_creacion: true
+            }
+        })
     }
 
 
