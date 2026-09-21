@@ -6,7 +6,7 @@ export interface JwtPayload {
 }
 
 export interface LoginResult {
-    usuario: Pick<Usuario, 'id' | 'nombre' | 'apellido' | 'rol_id'>;
+    usuario: Pick<Usuario, 'id' | 'nombre' | 'apellido' | 'rol_id'> & { rol: string };
     accessToken: string;
     refreshToken: string;
 }

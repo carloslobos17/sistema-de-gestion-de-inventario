@@ -1,14 +1,14 @@
 // src/repositories/user.repository.ts
 import { prisma } from '../../config/db';
-import type { UsuarioConCredenciales, RefreshTokenData } from './user.types';
+import type { UsuarioConCredenciales, RefreshTokenData, UsuarioListado } from './user.types';
 
 export class UserRepository {
     // Buscar un usuario activo por su username para el login
     async findByUsername(nombre_usuario: string): Promise<UsuarioConCredenciales | null> {
-        return prisma.usuario.findUnique({
+        const row = await prisma.usuario.findUnique({
             where: {
                 nombre_usuario,
-                activo: true // Solo permitimos login a usuarios activos
+                activo: true
             },
             select: {
                 id: true,
@@ -18,10 +18,17 @@ export class UserRepository {
                 apellido: true,
                 activo: true,
                 fecha_creacion: true,
-                password_hash: true
+                password_hash: true,
+                rol: { select: { nombre: true } }
             }
         });
+
+        if (!row) return null;
+
+        const { rol, ...usuario } = row;
+        return { ...usuario, rol: rol.nombre };
     }
+
 
     // Guardar o actualizar el refresh token del usuario
     async saveRefreshToken(usuarioId: number, token: string, expiresAt: Date): Promise<void> {
@@ -41,6 +48,24 @@ export class UserRepository {
         });
     }
 
+    async findAll(): Promise<UsuarioListado[]> {
+        const rows = await prisma.usuario.findMany({
+            select: {
+                id: true,
+                rol_id: true,
+                nombre_usuario: true,
+                nombre: true,
+                apellido: true,
+                activo: true,
+                fecha_creacion: true,
+                rol: { select: { nombre: true } }
+            },
+            orderBy: { fecha_creacion: 'desc' }
+        });
+
+        // Aplanamos rol.nombre a un string
+        return rows.map(({ rol, ...usuario }) => ({ ...usuario, rol: rol.nombre }));
+    }
 
     // Buscar un refresh token en la base de datos
     async findRefreshToken(token: string): Promise<RefreshTokenData | null> {

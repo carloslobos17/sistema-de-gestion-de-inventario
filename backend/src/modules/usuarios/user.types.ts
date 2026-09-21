@@ -11,6 +11,7 @@ export interface Usuario {
 // Solo para verificar credenciales en el login
 export interface UsuarioConCredenciales extends Usuario {
     password_hash: string;
+    rol: string; // nombre del rol
 }
 
 export interface RefreshTokenData {
@@ -19,4 +20,9 @@ export interface RefreshTokenData {
     token: string;
     fecha_expiracion: Date;
     revocado: boolean;
+}
+
+
+export interface UsuarioListado extends Usuario {
+    rol: string;
 }

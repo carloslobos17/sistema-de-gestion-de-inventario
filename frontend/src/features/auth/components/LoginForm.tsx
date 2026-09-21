@@ -2,7 +2,7 @@ import { FormField } from "../../../components/ui/FormField";
 import { Button } from "../../../components/ui/Button";
 import { ErrorMessage } from "../../../components/ui/ErrorMessage";
 import { useLoginForm } from "../hooks/useLoginForm";
-import type { LoginCredentials } from "../../../types/auth.types";
+import type { LoginCredentials } from "../auth.types.ts";
 
 interface LoginFormProps {
     onSubmit: (credentials: LoginCredentials) => Promise<unknown>;
