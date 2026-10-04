@@ -1,12 +1,12 @@
-import type { Usuario } from '../usuarios/user.types';
+import type { User } from '../users/user.types';
 
 export interface JwtPayload {
-    usuarioId: number;
-    rolId: number;
+    userId: number;
+    roleId: number;
 }
 
 export interface LoginResult {
-    usuario: Pick<Usuario, 'id' | 'nombre' | 'apellido' | 'rol_id'> & { rol: string };
+    user: Pick<User, 'id' | 'first_name' | 'last_name' | 'role_id'> & { role: string };
     accessToken: string;
     refreshToken: string;
 }

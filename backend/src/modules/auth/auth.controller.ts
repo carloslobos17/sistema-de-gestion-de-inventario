@@ -8,14 +8,14 @@ const authService = new AuthService();
 export class AuthController {
     async login(req: Request, res: Response): Promise<void> {
         try {
-            const datosValidados = req.body as LoginInput;
+            const validatedData = req.body as LoginInput;
 
-            const resultado = await authService.login(datosValidados);
+            const result = await authService.login(validatedData);
 
             // Responder al frontend con los tokens y datos del usuario
             res.status(200).json({
-                mensaje: 'Inicio de sesión exitoso',
-                datos: resultado
+                message: 'Inicio de sesión exitoso',
+                data: result
             });
 
         } catch (error: any) {
