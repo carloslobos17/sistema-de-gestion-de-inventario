@@ -13,81 +13,82 @@ datasource db {
 // ==========================================
 // ENUMS GLOBALES
 // ==========================================
-enum TipoPago {
-  Contado
-  Credito
+enum PaymentType {
+  Cash
+  Credit
 }
 
-enum MetodoPago {
-  Efectivo
-  Transferencia
+enum PaymentMethod {
+  Cash
+  Transfer
 }
 
-enum EstadoCuenta {
-  Pendiente
-  Abonada
-  Pagada
-  Vencida
-  Anulada
+enum AccountStatus {
+  Pending
+  PartiallyPaid
+  Paid
+  Overdue
+  Voided
 }
 
-enum EstadoCaja {
-  Abierta
-  Cerrada
+enum CashRegisterStatus {
+  Open
+  Closed
 }
 
-enum TipoMovimiento {
-  Entrada
-  Salida
-  Ajuste
+enum MovementType {
+  In
+  Out
+  Adjustment
 }
 
-enum TipoTransaccion {
-  Ingreso
-  Egreso
+enum TransactionType {
+  Income
+  Expense
 }
 
-enum TipoCuentaFinanciera {
-  Banco
-  CajaFisica
+enum FinancialAccountType {
+  Bank
+  CashRegister
 }
 
 // ==========================================
 // MÓDULO DE SEGURIDAD Y ACCESO
 // ==========================================
-model Rol {
-  id                  Int       @id @default(autoincrement())
-  nombre              String    @db.VarChar(255)
-  modifica_estructura Boolean   @default(false)
+model Role {
+  id                   Int     @id @default(autoincrement())
+  name                 String  @db.VarChar(255)
+  can_manage_structure Boolean @default(false)
 
-  usuarios            Usuario[]
+  users User[]
 
   @@map("roles")
 }
 
-model Usuario {
-  id             Int           @id @default(autoincrement())
-  rol_id         Int
-  nombre_usuario String        @unique @db.VarChar(100)
-  nombre         String        @db.VarChar(100)
-  apellido       String        @db.VarChar(100)
-  password_hash  String        @db.VarChar(255)
-  activo         Boolean       @default(true)
-  fecha_creacion DateTime      @default(now())
+model User {
+  id            Int      @id @default(autoincrement())
+  role_id       Int
+  username      String   @unique @db.VarChar(100)
+  first_name    String   @db.VarChar(100)
+  last_name     String   @db.VarChar(100)
+  password_hash String   @db.VarChar(255)
+  is_active     Boolean  @default(true)
+  created_at    DateTime @default(now())
 
-  rol           Rol           @relation(fields: [rol_id], references: [id])
+  role          Role          @relation(fields: [role_id], references: [id])
   refresh_token RefreshToken?
 
-  @@map("usuarios")
+  @@map("users")
 }
-model RefreshToken {
-  id               Int      @id @default(autoincrement())
-  usuario_id       Int      @unique
-  token            String   @unique @db.VarChar(512)
-  fecha_expiracion DateTime
-  revocado         Boolean  @default(false)
 
-  usuario          Usuario  @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
+model RefreshToken {
+  id         Int      @id @default(autoincrement())
+  user_id    Int      @unique
+  token      String   @unique @db.VarChar(512)
+  expires_at DateTime
+  is_revoked Boolean  @default(false)
+
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@map("refresh_tokens")
 }
@@ -95,53 +96,52 @@ model RefreshToken {
 // ==========================================
 // MÓDULO DE DATOS MAESTROS Y CATÁLOGOS
 // ==========================================
+model Category {
+  id        Int     @id @default(autoincrement())
+  name      String  @unique @db.VarChar(100)
+  is_active Boolean @default(true)
 
-model Categoria {
-  id          Int        @id @default(autoincrement())
-  nombre      String     @unique @db.VarChar(100)
-  activo      Boolean    @default(true)
-
-  @@map("categorias")
+  @@map("categories")
 }
 
-model Marca {
-  id     Int      @id @default(autoincrement())
-  nombre String   @unique @db.VarChar(100)
-  activo Boolean  @default(true)
+model Brand {
+  id        Int     @id @default(autoincrement())
+  name      String  @unique @db.VarChar(100)
+  is_active Boolean @default(true)
 
-  @@map("marcas")
+  @@map("brands")
 }
 
-model UnidadMedida {
-  id     Int      @id @default(autoincrement())
-  nombre String   @unique @db.VarChar(50)
-  activo Boolean  @default(true)
+model UnitOfMeasure {
+  id        Int     @id @default(autoincrement())
+  name      String  @unique @db.VarChar(50)
+  is_active Boolean @default(true)
 
-  @@map("unidades_medida")
+  @@map("units_of_measure")
 }
 
-model Proveedor {
-  id              Int       @id @default(autoincrement())
-  nombre_empresa  String    @unique @db.VarChar(200) // Obligatorio y único
-  telefono        String?   @unique @db.VarChar(50)  // Opcional y único
-  email           String?   @unique @db.VarChar(150) // Opcional y único
-  direccion       String?   @db.VarChar(255)         // Opcional
-  activo          Boolean   @default(true)
-  fecha_creacion  DateTime  @default(now())
+model Supplier {
+  id           Int      @id @default(autoincrement())
+  company_name String   @unique @db.VarChar(200)
+  phone        String?  @unique @db.VarChar(50)
+  email        String?  @unique @db.VarChar(150)
+  address      String?  @db.VarChar(255)
+  is_active    Boolean  @default(true)
+  created_at   DateTime @default(now())
 
-  @@map("proveedores")
+  @@map("suppliers")
 }
 
-model Cliente {
-  id             Int      @id @default(autoincrement())
-  nombre         String   @db.VarChar(100)        // Obligatorio
-  apellido       String   @db.VarChar(100)        // Obligatorio
-  documento      String?  @unique @db.VarChar(50)  // Opcional y único
-  telefono       String?  @unique @db.VarChar(50)  // Opcional y único
-  email          String?  @unique @db.VarChar(150) // Opcional y único
-  direccion      String?  @db.VarChar(255)        // Opcional
-  activo         Boolean  @default(true)
-  fecha_creacion DateTime @default(now())
+model Customer {
+  id              Int      @id @default(autoincrement())
+  first_name      String   @db.VarChar(100)
+  last_name       String   @db.VarChar(100)
+  document_number String?  @unique @db.VarChar(50)
+  phone           String?  @unique @db.VarChar(50)
+  email           String?  @unique @db.VarChar(150)
+  address         String?  @db.VarChar(255)
+  is_active       Boolean  @default(true)
+  created_at      DateTime @default(now())
 
-  @@map("clientes")
+  @@map("customers")
 }

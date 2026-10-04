@@ -6,24 +6,24 @@ const prisma = new PrismaClient();
 async function main() {
     console.log('Iniciando el poblamiento de la base de datos (Seeding)...');
 
-    // 1. Crear Roles Básicos respetando tu modelo exacto
-    const rolAdmin = await prisma.rol.upsert({
+    // 1. Crear Roles Básicos
+    const adminRole = await prisma.role.upsert({
         where: { id: 1 },
         update: {},
         create: {
             id: 1,
-            nombre: 'Administrador',
-            modifica_estructura: true // Permisos completos
+            name: 'Administrator',
+            can_manage_structure: true
         },
     });
 
-    const rolVendedor = await prisma.rol.upsert({
+    const sellerRole = await prisma.role.upsert({
         where: { id: 2 },
         update: {},
         create: {
             id: 2,
-            nombre: 'Vendedor',
-            modifica_estructura: false // Sin permisos para modificar estructura
+            name: 'Seller',
+            can_manage_structure: false
         },
     });
 
@@ -33,20 +33,20 @@ async function main() {
     const passwordHash = await bcrypt.hash('admin123', 10);
 
     // 3. Crear el Usuario Administrador Principal
-    const usuarioAdmin = await prisma.usuario.upsert({
-        where: { nombre_usuario: 'admin' },
+    const adminUser = await prisma.user.upsert({
+        where: { username: 'admin' },
         update: {},
         create: {
-            rol_id: rolAdmin.id,
-            nombre_usuario: 'admin',
-            nombre: 'Carlos',
-            apellido: 'Martínez',
+            role_id: adminRole.id,
+            username: 'admin',
+            first_name: 'Carlos',
+            last_name: 'Martinez',
             password_hash: passwordHash,
-            activo: true
+            is_active: true
         },
     });
 
-    console.log(`Usuario administrador creado: ${usuarioAdmin.nombre_usuario}`);
+    console.log(`Usuario administrador creado: ${adminUser.username}`);
     console.log('¡Seed completado con éxito!');
 }
 

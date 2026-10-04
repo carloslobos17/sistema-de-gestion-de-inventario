@@ -12,14 +12,14 @@ export const validateSchema = (schema: z.ZodTypeAny) => {
             // Usamos la clase ZodError directamente desde 'z'
             if (error instanceof z.ZodError) {
                 // En Zod, la propiedad oficial es 'issues', no 'errors' (esto quita el error de ANY)
-                const erroresZod = error.issues.map((issue) => ({
-                    campo: issue.path.join('.'),
-                    mensaje: issue.message
+                const zodErrors = error.issues.map((issue) => ({
+                    field: issue.path.join('.'),
+                    message: issue.message
                 }));
 
                 res.status(400).json({
                     error: 'Datos de entrada inválidos',
-                    detalles: erroresZod
+                    details: zodErrors
                 });
                 return;
             }
