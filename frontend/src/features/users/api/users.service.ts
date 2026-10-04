@@ -1,12 +1,14 @@
 import { apiClient } from "../../../api/axiosConfig";
 import { getErrorMessage } from "../../../api/getErrorMessage";
-import type { UsuarioItem } from "../usuarios.types";
+import type { UserItem } from "../users.types";
 
-export async function obtenerUsuarios(): Promise<UsuarioItem[]> {
+export async function fetchUsers(): Promise<UserItem[]> {
     try {
-        const { data } = await apiClient.get<{ datos: UsuarioItem[] }>("/usuarios");
-        return data.datos;
+        const { data } = await apiClient.get<{ data: UserItem[] }>("/users");
+        return data.data;
     } catch (error) {
         throw new Error(getErrorMessage(error, "No se pudieron cargar los usuarios"));
     }
 }
+
+

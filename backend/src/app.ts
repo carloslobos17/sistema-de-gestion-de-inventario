@@ -24,4 +24,4 @@ app.use('/api/auth', authRoutes); // login
 
 app.use('/api/users', userRoutes); // lista de usuarios (protegida por token)
 
-export default app; // Exportamos la app configurada
+export default app; // Exportamos la app configurada 

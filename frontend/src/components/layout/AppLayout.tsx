@@ -1,14 +1,15 @@
-// src/components/layout/AppLayout.tsx
-import { Outlet } from "react-router-dom";
-import { Navbar } from "./Navbar";
+import type { ReactNode } from "react";
+import { AppHeader } from "./AppHeader";
 
-export function AppLayout() {
+interface AppLayoutProps {
+    children: ReactNode;
+}
+
+export function AppLayout({ children }: AppLayoutProps) {
     return (
-        <div className="min-h-screen bg-slate-50 text-slate-900">
-            <Navbar />
-            <main className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-                <Outlet />
-            </main>
+        <div className="min-h-screen flex flex-col bg-zinc-50/50 text-zinc-900">
+            <AppHeader />
+            <main className="flex-1 w-full p-4 md:p-8">{children}</main>
         </div>
     );
 }

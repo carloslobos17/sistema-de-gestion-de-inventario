@@ -2,29 +2,26 @@
 import { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
 
-// Usamos z.ZodTypeAny para que acepte cualquier esquema de Zod (objetos, strings, arrays)
-export const validateSchema = (schema: z.ZodTypeAny) => {
+type Source = 'body' | 'params';
+
+export const validateSchema = (schema: z.ZodTypeAny, source: Source = 'body') => {
     return (req: Request, res: Response, next: NextFunction): void => {
-        try {
-            schema.parse(req.body);
-            next();
-        } catch (error) {
-            // Usamos la clase ZodError directamente desde 'z'
-            if (error instanceof z.ZodError) {
-                // En Zod, la propiedad oficial es 'issues', no 'errors' (esto quita el error de ANY)
-                const zodErrors = error.issues.map((issue) => ({
-                    field: issue.path.join('.'),
-                    message: issue.message
-                }));
+        const result = schema.safeParse(req[source]);
 
-                res.status(400).json({
-                    error: 'Datos de entrada inválidos',
-                    details: zodErrors
-                });
-                return;
-            }
+        if (!result.success) {
+            const details = result.error.issues.map((issue) => ({
+                field: issue.path.join('.'),
+                message: issue.message
+            }));
 
-            next(error);
+            res.status(400).json({
+                error: 'Datos de entrada inválidos',
+                details
+            });
+            return;
         }
+
+        (req as any)[source] = result.data;
+        next();
     };
 };

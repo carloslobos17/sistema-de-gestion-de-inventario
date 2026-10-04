@@ -1,4 +1,4 @@
-import axios from 'axios';
+﻿import axios from 'axios';
 
 export const apiClient = axios.create({
     baseURL: 'http://localhost:3000/api',
@@ -17,10 +17,10 @@ apiClient.interceptors.request.use((config) => {
 apiClient.interceptors.response.use(
     (response) => response,
     (error) => {
-        const esLogin = error.config?.url?.includes("/auth/login");
-        if (error.response?.status === 401 && !esLogin) {
+        const isLogin = error.config?.url?.includes("/auth/login");
+        if (error.response?.status === 401 && !isLogin) {
             localStorage.removeItem("token");
-            localStorage.removeItem("usuario");
+            localStorage.removeItem("user");
             window.location.href = "/login";
         }
         return Promise.reject(error);

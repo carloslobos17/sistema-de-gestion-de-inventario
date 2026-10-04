@@ -1,14 +1,15 @@
+import { Link } from "react-router-dom";
 import { Badge } from "../../../components/ui/Badge";
 import { formatDate } from "../../../utils/formatDate";
-import type { UsuarioItem } from "../usuarios.types";
+import type { UserItem } from "../users.types";
 
 interface UserTableProps {
-    usuarios: UsuarioItem[];
+    users: UserItem[];
 }
 
-export function UserTable({ usuarios }: UserTableProps) {
+export function UserTable({ users }: UserTableProps) {
     return (
-        <div className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+        <div className="overflow-hidden rounded-lg border border-zinc-200 bg-white shadow-sm">
             <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm">
                     <thead className="border-b border-slate-200 bg-slate-50 text-xs font-medium uppercase tracking-wide text-slate-500">
@@ -22,32 +23,35 @@ export function UserTable({ usuarios }: UserTableProps) {
                     </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
-                    {usuarios.map((u) => (
+                    {users.map((u) => (
                         <tr key={u.id} className="transition-colors hover:bg-slate-50">
                             <td className="px-6 py-4 font-medium text-slate-900">
-                                @{u.nombre_usuario}
+                                @{u.username}
                             </td>
                             <td className="px-6 py-4 text-slate-700">
-                                {u.nombre} {u.apellido}
+                                {u.first_name} {u.last_name}
                             </td>
                             <td className="px-6 py-4">
                                     <span className="rounded-md bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700">
-                                        {u.rol}
+                                        {u.role}
                                     </span>
                             </td>
                             <td className="px-6 py-4">
-                                <Badge variant={u.activo ? "success" : "danger"}>
-                                    {u.activo ? "Activo" : "Inactivo"}
+                                <Badge variant={u.is_active ? "success" : "danger"}>
+                                    {u.is_active ? "Activo" : "Inactivo"}
                                 </Badge>
                             </td>
-                            <td className="px-6 py-4 text-slate-500">{formatDate(u.fecha_creacion)}</td>
+                            <td className="px-6 py-4 text-slate-500">{formatDate(u.created_at)}</td>
                             <td className="px-6 py-4">
                                 <div className="flex justify-end gap-1">
-                                    <button className="rounded px-2 py-1 font-medium text-blue-600 transition-colors hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
+                                    <Link
+                                        to={`/users/${u.id}/edit`}
+                                        className="rounded px-2 py-1 font-medium text-blue-600 transition-colors hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                                    >
                                         Editar
-                                    </button>
+                                    </Link>
                                     <button className="rounded px-2 py-1 font-medium text-rose-600 transition-colors hover:bg-rose-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500">
-                                        {u.activo ? "Desactivar" : "Activar"}
+                                        {u.is_active ? "Desactivar" : "Activar"}
                                     </button>
                                 </div>
                             </td>

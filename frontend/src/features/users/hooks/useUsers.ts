@@ -1,17 +1,17 @@
 import { useState, useEffect } from "react";
-import { obtenerUsuarios } from "../api/usuarios.service";
-import type { UsuarioItem } from "../usuarios.types.ts";
+import { fetchUsers } from "../api/users.service";
+import type { UserItem } from "../users.types";
 
-export function useUsuarios() {
-    const [usuarios, setUsuarios] = useState<UsuarioItem[]>([]);
+export function useUsers() {
+    const [users, setUsers] = useState<UserItem[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        async function fetchUsuarios() {
+        async function loadUsers() {
             try {
-                const data = await obtenerUsuarios();
-                setUsuarios(data);
+                const data = await fetchUsers();
+                setUsers(data);
             } catch (err) {
                 setError(err instanceof Error ? err.message : "Error desconocido");
             } finally {
@@ -19,8 +19,8 @@ export function useUsuarios() {
             }
         }
 
-        fetchUsuarios();
+        loadUsers();
     }, []);
 
-    return { usuarios, isLoading, error };
+    return { users, isLoading, error };
 }
