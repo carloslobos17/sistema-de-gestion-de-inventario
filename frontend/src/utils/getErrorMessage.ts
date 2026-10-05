@@ -1,5 +1,11 @@
-// src/utils/getErrorMessage.ts
-// Saca un mensaje legible de cualquier error atrapado en un catch.
+import { isAxiosError } from "axios";
+
 export function getErrorMessage(error: unknown, fallback: string): string {
-    return error instanceof Error ? error.message : fallback;
+    if (isAxiosError(error)) {
+        if (!error.response) return "Error de conexión con el servidor";
+        return error.response.data?.error ?? fallback;
+    }
+    // Errores ya convertidos por toApiError en los servicios
+    if (error instanceof Error && error.message) return error.message;
+    return fallback;
 }

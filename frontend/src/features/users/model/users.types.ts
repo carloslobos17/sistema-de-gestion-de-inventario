@@ -32,7 +32,7 @@ export interface CreateUserPayload {
 
 export type UpdateUserPayload = Partial<CreateUserPayload & { is_active: boolean }>;
 
-export type ActionResult<T = void> = { ok: true; data: T } | { ok: false; error: string };
+export type { ActionResult } from '../../../types/common';
 
 // ==========================================
 // FORMULARIO Y SELECTORES
