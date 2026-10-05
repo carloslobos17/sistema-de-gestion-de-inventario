@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { UserService } from './user.service';
-import { UserError } from './user.errors';
+import { AppError } from '../../utils/AppError';
 import { userFiltersSchema } from './user.schema';
 import type { CreateUserInput, UpdateUserInput } from './user.schema';
 
@@ -9,7 +9,7 @@ const userService = new UserService();
 const getCurrentUserId = (req: Request): number | undefined => req.user?.userId;
 
 function handleError(res: Response, error: any, context: string): void {
-    if (error instanceof UserError) {
+    if (error instanceof AppError) {
         res.status(error.status).json({ error: error.message });
         return;
     }

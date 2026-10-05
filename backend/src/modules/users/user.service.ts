@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt';
 import { UserRepository } from './user.repository';
-import { UserError } from './user.errors';
+import { AppError } from '../../utils/AppError';
 import type { CreateUserInput, UpdateUserInput } from './user.schema';
 import type { UpdateUserData, UserListed, UserFilters } from './user.types';
 
@@ -16,7 +16,7 @@ export class UserService {
     async getById(id: number): Promise<UserListed> {
         const user = await this.userRepository.findById(id);
         if (!user) {
-            throw new UserError('Usuario no encontrado', 404);
+            throw new AppError('Usuario no encontrado', 404);
         }
         return user;
     }
@@ -24,7 +24,7 @@ export class UserService {
     async create(data: CreateUserInput): Promise<UserListed> {
         const alreadyExists = await this.userRepository.existsByUsername(data.username);
         if (alreadyExists) {
-            throw new UserError('El nombre de usuario ya está en uso', 409);
+            throw new AppError('El nombre de usuario ya está en uso', 409);
         }
 
         const { password, ...rest } = data;
@@ -39,17 +39,17 @@ export class UserService {
         // Evita que un admin se deje fuera a sí mismo
         if (currentUserId === id) {
             if (data.is_active === false) {
-                throw new UserError('No puedes desactivar tu propio usuario', 400);
+                throw new AppError('No puedes desactivar tu propio usuario', 400);
             }
             if (data.role_id !== undefined && data.role_id !== user.role_id) {
-                throw new UserError('No puedes cambiar tu propio rol', 400);
+                throw new AppError('No puedes cambiar tu propio rol', 400);
             }
         }
 
         if (data.username && data.username !== user.username) {
             const taken = await this.userRepository.existsByUsername(data.username, id);
             if (taken) {
-                throw new UserError('El nombre de usuario ya está en uso', 409);
+                throw new AppError('El nombre de usuario ya está en uso', 409);
             }
         }
 
@@ -74,7 +74,7 @@ export class UserService {
     // su historial. Se reactiva con PATCH { is_active: true }.
     async remove(id: number, currentUserId?: number): Promise<void> {
         if (currentUserId === id) {
-            throw new UserError('No puedes eliminar tu propio usuario', 400);
+            throw new AppError('No puedes eliminar tu propio usuario', 400);
         }
 
         await this.getById(id); // lanza 404 si no existe

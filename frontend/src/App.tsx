@@ -7,6 +7,7 @@ import { LoginPage } from "./pages/LoginPage";
 import { DashboardPage } from "./pages/DashboardPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
 import { usersRoutes } from "./features/users/users.routes";
+import { brandsRoutes } from "./features/brands/brands.routes";
 
 function App() {
     return (
@@ -27,6 +28,7 @@ function App() {
 
                         {/* Módulos: una línea por cada uno */}
                         {usersRoutes}
+                        {brandsRoutes}
                         {/* {inventoryRoutes} */}
                         {/* {purchasesRoutes} */}
 
