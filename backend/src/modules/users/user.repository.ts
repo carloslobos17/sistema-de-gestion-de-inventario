@@ -6,8 +6,7 @@ import type {
     UserListed,
     CreateUserData,
     UpdateUserData,
-    UserFilters,
-    User
+    UserFilters
 } from './user.types';
 
 // Tipo del "where" de Prisma para usuarios, sacado de tu propio cliente (no necesita importar Prisma)
@@ -24,6 +23,18 @@ const USER_SELECT = {
     created_at: true
 } as const;
 
+// Los mismos campos + el nombre del rol
+const USER_WITH_ROLE_SELECT = {
+    ...USER_SELECT,
+    role: { select: { name: true } }
+} as const;
+
+// Convierte { role: { name: 'Admin' } } en { role: 'Admin' }
+function flattenRole<T extends { role: { name: string } }>(row: T) {
+    const { role, ...user } = row;
+    return { ...user, role: role.name };
+}
+
 export class UserRepository {
     // Buscar un usuario activo por su username para el login
     async findByUsername(username: string): Promise<UserWithCredentials | null> {
@@ -33,23 +44,21 @@ export class UserRepository {
                 is_active: true
             },
             select: {
-                ...USER_SELECT,
-                password_hash: true,
-                role: { select: { name: true } }
+                ...USER_WITH_ROLE_SELECT,
+                password_hash: true
             }
         });
 
-        if (!row) return null;
-
-        const { role, ...user } = row;
-        return { ...user, role: role.name };
+        return row ? flattenRole(row) : null;
     }
 
-    async findById(id: number): Promise<User | null> {
-        return prisma.user.findUnique({
+    async findById(id: number): Promise<UserListed | null> {
+        const row = await prisma.user.findUnique({
             where: { id },
-            select: USER_SELECT
+            select: USER_WITH_ROLE_SELECT
         });
+
+        return row ? flattenRole(row) : null;
     }
 
     // excludeId permite ignorar al propio usuario al editar (puede "cambiar" a su mismo username)
@@ -61,19 +70,23 @@ export class UserRepository {
         return user !== null && user.id !== excludeId;
     }
 
-    async create(data: CreateUserData): Promise<User> {
-        return prisma.user.create({
+    async create(data: CreateUserData): Promise<UserListed> {
+        const row = await prisma.user.create({
             data,
-            select: USER_SELECT
+            select: USER_WITH_ROLE_SELECT
         });
+
+        return flattenRole(row);
     }
 
-    async update(id: number, data: UpdateUserData): Promise<User> {
-        return prisma.user.update({
+    async update(id: number, data: UpdateUserData): Promise<UserListed> {
+        const row = await prisma.user.update({
             where: { id },
             data,
-            select: USER_SELECT
+            select: USER_WITH_ROLE_SELECT
         });
+
+        return flattenRole(row);
     }
 
     // Borrado lógico: desactiva al usuario y cierra todas sus sesiones en una sola transacción
@@ -119,12 +132,11 @@ export class UserRepository {
 
         const rows = await prisma.user.findMany({
             where,
-            select: { ...USER_SELECT, role: { select: { name: true } } },
+            select: USER_WITH_ROLE_SELECT,
             orderBy: { created_at: 'desc' }
         });
 
-        // Aplanamos role.name a un string
-        return rows.map(({ role, ...user }) => ({ ...user, role: role.name }));
+        return rows.map(flattenRole);
     }
 
     // Guardar o actualizar el refresh token del usuario

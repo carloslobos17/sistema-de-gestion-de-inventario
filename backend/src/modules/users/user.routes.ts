@@ -8,10 +8,19 @@ import { createUserSchema, updateUserSchema, userIdParamSchema } from './user.sc
 const router = Router();
 const userController = new UserController();
 
-// GET: /api/usuarios
+// GET: /api/users?search=&role_id=&is_active=
 router.get('/', authenticateToken, requireAdmin, (req, res) => userController.list(req, res));
 
-// POST: /api/usuarios
+// GET: /api/users/:id  (para precargar el formulario de edición)
+router.get(
+    '/:id',
+    authenticateToken,
+    requireAdmin,
+    validateSchema(userIdParamSchema, 'params'),
+    (req, res) => userController.getById(req, res)
+);
+
+// POST: /api/users
 router.post(
     '/',
     authenticateToken,
@@ -20,8 +29,7 @@ router.post(
     (req, res) => userController.create(req, res)
 );
 
-
-// PATCH: /api/usuarios/:id  (edición parcial: solo se envían los campos a cambiar)
+// PATCH: /api/users/:id  (edición parcial: solo se envían los campos a cambiar)
 router.patch(
     '/:id',
     authenticateToken,
@@ -31,7 +39,7 @@ router.patch(
     (req, res) => userController.update(req, res)
 );
 
-// DELETE: /api/usuarios/:id  (borrado lógico: is_active = false)
+// DELETE: /api/users/:id  (borrado lógico: is_active = false)
 router.delete(
     '/:id',
     authenticateToken,
@@ -39,6 +47,5 @@ router.delete(
     validateSchema(userIdParamSchema, 'params'),
     (req, res) => userController.remove(req, res)
 );
-
 
 export default router;

@@ -1,15 +1,13 @@
-import type { ReactNode } from "react";
+import { Outlet } from "react-router-dom";
 import { AppHeader } from "./AppHeader";
 
-interface AppLayoutProps {
-    children: ReactNode;
-}
-
-export function AppLayout({ children }: AppLayoutProps) {
+export function AppLayout() {
     return (
-        <div className="min-h-screen flex flex-col bg-zinc-50/50 text-zinc-900">
+        <div className="flex min-h-screen flex-col bg-zinc-50/50 text-zinc-900">
             <AppHeader />
-            <main className="flex-1 w-full p-4 md:p-8">{children}</main>
+            <main className="w-full flex-1 p-4 md:p-8">
+                <Outlet />
+            </main>
         </div>
     );
 }

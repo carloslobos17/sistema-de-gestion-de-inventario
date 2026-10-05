@@ -1,26 +1,39 @@
 // src/App.tsx
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { LoginPage } from "./pages/LoginPage";
-import { UsersPage } from "./pages/UsersPage";
-import { CreateUserPage } from "./pages/CreateUserPage";
-import { EditUserPage } from "./pages/EditUserPage";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { Toaster } from "sonner";
+import { AppLayout } from "./components/layout/AppLayout";
 import { ProtectedRoute } from "./routes/ProtectedRoute";
+import { LoginPage } from "./pages/LoginPage";
+import { DashboardPage } from "./pages/DashboardPage";
+import { NotFoundPage } from "./pages/NotFoundPage";
+import { usersRoutes } from "./features/users/users.routes";
 
 function App() {
     return (
         <BrowserRouter>
+            {/* Notificaciones globales: fuera de las rutas para que sobrevivan al cambiar de página */}
+            <Toaster position="top-right" richColors closeButton />
+
             <Routes>
+                {/* 1. Rutas públicas */}
                 <Route path="/login" element={<LoginPage />} />
 
-                {/* Todo lo que va aquí exige sesión; cada página se envuelve en <AppLayout> */}
+                {/* 2. Rutas protegidas: exigen sesión */}
                 <Route element={<ProtectedRoute />}>
-                    <Route path="/users" element={<UsersPage />} />
-                    <Route path="/users/create" element={<CreateUserPage />} />
-                    <Route path="/users/:id/edit" element={<EditUserPage />} />
-                    {/* futuras: /categories, /suppliers, /customers */}
-                </Route>
+                    {/* Marco con header y menú, siempre visible */}
+                    <Route element={<AppLayout />}>
+                        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                        <Route path="/dashboard" element={<DashboardPage />} />
 
-                <Route path="*" element={<Navigate to="/users" replace />} />
+                        {/* Módulos: una línea por cada uno */}
+                        {usersRoutes}
+                        {/* {inventoryRoutes} */}
+                        {/* {purchasesRoutes} */}
+
+                        {/* 3. Cualquier otra URL */}
+                        <Route path="*" element={<NotFoundPage />} />
+                    </Route>
+                </Route>
             </Routes>
         </BrowserRouter>
     );

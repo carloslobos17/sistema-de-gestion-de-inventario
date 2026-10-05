@@ -27,6 +27,7 @@ function handleError(res: Response, error: any, context: string): void {
 export class UserController {
     // GET /api/users?search=ana&role_id=2&is_active=true
     async list(req: Request, res: Response): Promise<void> {
+        // Se valida aquí y no con validateSchema porque en Express 5 req.query no se puede reemplazar
         const parsed = userFiltersSchema.safeParse(req.query);
 
         if (!parsed.success) {
@@ -45,6 +46,18 @@ export class UserController {
             res.status(200).json({ data: users });
         } catch (error) {
             handleError(res, error, 'list');
+        }
+    }
+
+    // GET /api/users/:id
+    async getById(req: Request, res: Response): Promise<void> {
+        try {
+            const id = Number(req.params.id);
+            const user = await userService.getById(id);
+
+            res.status(200).json({ data: user });
+        } catch (error) {
+            handleError(res, error, 'getById');
         }
     }
 
