@@ -5,8 +5,8 @@ export function useLogin() {
     const login = async (credentials: LoginCredentials) => {
         const response = await loginWithCredentials(credentials);
 
-        localStorage.setItem("token", response.datos.accessToken);
-        localStorage.setItem("usuario", JSON.stringify(response.datos.usuario));
+        localStorage.setItem("token", response.data.accessToken);
+        localStorage.setItem("user", JSON.stringify(response.data.user));
 
         return response;
     };

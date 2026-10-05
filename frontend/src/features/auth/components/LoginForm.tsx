@@ -1,4 +1,4 @@
-import { FormField } from "../../../components/ui/FormField";
+﻿import { FormField } from "../../../components/ui/FormField";
 import { Button } from "../../../components/ui/Button";
 import { ErrorMessage } from "../../../components/ui/ErrorMessage";
 import { useLoginForm } from "../hooks/useLoginForm";
@@ -15,14 +15,14 @@ export function LoginForm({ onSubmit }: LoginFormProps) {
         <form onSubmit={handleSubmit} noValidate className="space-y-5">
             <FormField
                 label="Usuario"
-                name="nombre_usuario"
+                name="username"
                 type="text"
                 autoComplete="username"
                 placeholder="Ej. admin"
                 required
-                value={formData.nombre_usuario}
-                error={errors.nombre_usuario}
-                onChange={(e) => handleChange("nombre_usuario", e.target.value)}
+                value={formData.username}
+                error={errors.username}
+                onChange={(e) => handleChange("username", e.target.value)}
             />
 
             <FormField

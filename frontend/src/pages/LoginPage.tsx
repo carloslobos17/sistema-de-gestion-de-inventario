@@ -9,7 +9,7 @@ export function LoginPage() {
 
     async function handleLogin(credentials: LoginCredentials) {
         await login(credentials);
-        navigate("/usuarios");
+        navigate("/users");
     }
 
     return (

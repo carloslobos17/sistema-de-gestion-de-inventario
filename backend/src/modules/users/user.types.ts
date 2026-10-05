@@ -9,10 +9,9 @@ export interface User {
 }
 
 
-// Solo para verificar credenciales en el login
 export interface UserWithCredentials extends User {
     password_hash: string;
-    role: string; // nombre del rol
+    role: string;
 }
 
 export interface UserListed extends User {
@@ -27,6 +26,9 @@ export interface CreateUserData {
     password_hash: string;
 }
 
+
+export type UpdateUserData = Partial<CreateUserData & { is_active: boolean }>;
+
 export interface RefreshTokenData {
     id: number;
     user_id: number;
@@ -36,5 +38,8 @@ export interface RefreshTokenData {
 }
 
 
-
-
+export interface UserFilters {
+    search?: string;     // Buscará en username, first_name o last_name
+    role_id?: number;    // Filtrar por un rol específico
+    is_active?: boolean; // Filtrar activos/inactivos
+}

@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+﻿import { useState, type FormEvent } from "react";
 import { loginSchema } from "../schemas/login.schema";
 import type { LoginCredentials, LoginFormErrors } from "../auth.types.ts";
 
@@ -8,7 +8,7 @@ interface UseLoginFormProps {
 
 export function useLoginForm({ onSubmit }: UseLoginFormProps) {
     const [formData, setFormData] = useState<LoginCredentials>({
-        nombre_usuario: "",
+        username: "",
         password: "",
     });
     const [errors, setErrors] = useState<LoginFormErrors>({});

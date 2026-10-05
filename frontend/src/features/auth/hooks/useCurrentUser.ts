@@ -1,13 +1,11 @@
-import type { LoginResponse } from "../auth.types";
+import type { AuthUser } from "../auth.types";
 
-type StoredUser = LoginResponse["datos"]["usuario"];
-
-export function useCurrentUser(): StoredUser | null {
-    const raw = localStorage.getItem("usuario");
+export function useCurrentUser(): AuthUser | null {
+    const raw = localStorage.getItem("user");
     if (!raw) return null;
 
     try {
-        return JSON.parse(raw) as StoredUser;
+        return JSON.parse(raw) as AuthUser;
     } catch {
         return null;
     }
