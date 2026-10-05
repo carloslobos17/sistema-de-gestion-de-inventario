@@ -3,6 +3,7 @@ import express, { Request, Response } from 'express';
 import cors from 'cors';
 import authRoutes from './modules/auth/auth.routes';
 import userRoutes from './modules/users/user.routes';
+import brandRoutes from './modules/brands/brand.routes';
 
 const app = express();
 
@@ -23,5 +24,6 @@ app.get('/api/health', (req: Request, res: Response) => {
 app.use('/api/auth', authRoutes); // login
 
 app.use('/api/users', userRoutes); // lista de usuarios (protegida por token)
+app.use('/api/brands', brandRoutes);
 
 export default app; // Exportamos la app configurada 
