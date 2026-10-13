@@ -1,24 +1,3 @@
-// =====================================================================
-// H1 · Ver y buscar marcas — Integrante 1
-// Archivo: features/brands/hooks/useBrandsList.ts
-// ---------------------------------------------------------------------
-// QUÉ HACE: carga las marcas desde el backend y las recarga cuando cambian los filtros.
-//
-// ESTADO ACTUAL: versión MÍNIMA TEMPORAL para que H2 y H3 puedan probar desde el
-// primer día. Funciona, pero le falta lo de abajo.
-//
-// TAREAS:
-//   [ ] isLoading empieza en true y se apaga al terminar (en finally)
-//   [ ] Guardar el error con getErrorMessage(err, 'Error al cargar las marcas')
-//       (src/utils/getErrorMessage.ts) y devolver isLoading y error
-//   [ ] Evitar que una respuesta vieja pise a una nueva al escribir rápido
-//       (patrón requestIdRef de useUsersList)
-//   [ ] Usar como dependencias los campos sueltos (search, is_active), no el objeto filters
-//
-// NO CAMBIAR: los nombres que devuelve (brands, reload, removeBrandFromList,
-// replaceBrandInList). La página y H2/H3 dependen de ellos.
-// REFERENCIA: features/users/hooks/useUsersList.ts
-// =====================================================================
 import { useCallback, useEffect, useState } from 'react';
 import * as brandsApi from '../api/brands.service';
 import type { Brand, BrandFilters } from '../model/brands.types';
