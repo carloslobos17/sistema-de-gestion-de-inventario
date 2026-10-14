@@ -1,4 +1,4 @@
-
+import { Badge } from "../../../components/ui/Badge";
 import { BrandStatusButton } from "./BrandStatusButton";
 import { EditBrandButton } from "./EditBrandButton";
 import type { BrandTableProps } from "../model/brands.types";
