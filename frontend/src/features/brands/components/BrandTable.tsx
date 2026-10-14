@@ -1,21 +1,40 @@
+
 import { BrandStatusButton } from "./BrandStatusButton";
 import { EditBrandButton } from "./EditBrandButton";
 import type { BrandTableProps } from "../model/brands.types";
 
 export function BrandTable({ brands, onBrandSaved, onBrandStatusChanged }: BrandTableProps) {
     return (
-        <ul className="divide-y rounded-lg border bg-white">
-            {brands.map((brand) => (
-                <li key={brand.id} className="flex items-center justify-between gap-4 px-4 py-3 text-sm">
-                    <span>
-                        {brand.name} — {brand.is_active ? "Activa" : "Inactiva"}
-                    </span>
-                    <span className="flex gap-2">
-                        <EditBrandButton brand={brand} onSaved={onBrandSaved} />
-                        <BrandStatusButton brand={brand} onChanged={onBrandStatusChanged} />
-                    </span>
-                </li>
-            ))}
-        </ul>
+        <div className="overflow-hidden rounded-lg border border-zinc-200 bg-white shadow-sm">
+            <div className="overflow-x-auto">
+                <table className="w-full text-left text-sm">
+                    <thead className="border-b border-slate-200 bg-slate-50 text-xs font-medium uppercase tracking-wide text-slate-500">
+                        <tr>
+                            <th scope="col" className="px-6 py-3">Nombre</th>
+                            <th scope="col" className="px-6 py-3">Estado</th>
+                            <th scope="col" className="px-6 py-3 text-right">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                        {brands.map((brand) => (
+                            <tr key={brand.id} className="transition-colors hover:bg-slate-50">
+                                <td className="px-6 py-4 font-medium text-slate-900">{brand.name}</td>
+                                <td className="px-6 py-4">
+                                    <Badge variant={brand.is_active ? "success" : "danger"}>
+                                        {brand.is_active ? "Activa" : "Inactiva"}
+                                    </Badge>
+                                </td>
+                                <td className="px-6 py-4">
+                                    <div className="flex justify-end gap-1">
+                                        <EditBrandButton brand={brand} onSaved={onBrandSaved} />
+                                        <BrandStatusButton brand={brand} onChanged={onBrandStatusChanged} />
+                                    </div>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+        </div>
     );
 }
