@@ -4,33 +4,49 @@
 // ---------------------------------------------------------------------
 // QUÉ HACE: carga las marcas desde el backend y las recarga cuando cambian los filtros.
 //
-// ESTADO ACTUAL: versión MÍNIMA TEMPORAL para que H2 y H3 puedan probar desde el
-// primer día. Funciona, pero le falta lo de abajo.
-//
 // TAREAS:
-//   [ ] isLoading empieza en true y se apaga al terminar (en finally)
-//   [ ] Guardar el error con getErrorMessage(err, 'Error al cargar las marcas')
-//       (src/utils/getErrorMessage.ts) y devolver isLoading y error
-//   [ ] Evitar que una respuesta vieja pise a una nueva al escribir rápido
+//   [x] isLoading empieza en true y se apaga al terminar (en finally)
+//   [x] Guardar el error con getErrorMessage(err, 'Error al cargar las marcas')
+//       y devolver isLoading y error
+//   [x] Evitar que una respuesta vieja pise a una nueva al escribir rápido
 //       (patrón requestIdRef de useUsersList)
-//   [ ] Usar como dependencias los campos sueltos (search, is_active), no el objeto filters
+//   [x] Usar como dependencias los campos sueltos (search, is_active), no el objeto filters
 //
 // NO CAMBIAR: los nombres que devuelve (brands, reload, removeBrandFromList,
 // replaceBrandInList). La página y H2/H3 dependen de ellos.
 // REFERENCIA: features/users/hooks/useUsersList.ts
 // =====================================================================
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import * as brandsApi from '../api/brands.service';
+import { getErrorMessage } from '../../../utils/getErrorMessage';
 import type { Brand, BrandFilters } from '../model/brands.types';
 
 export function useBrandsList(filters: BrandFilters) {
     const [brands, setBrands] = useState<Brand[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
-    // TEMPORAL: sin loading, sin manejo de errores y sin control de respuestas viejas
+    // Evita que una respuesta vieja pise a una nueva (ej. al escribir rápido en el buscador)
+    const requestIdRef = useRef(0);
+
+    // Campos sueltos como dependencias: no recarga si solo cambia la referencia del objeto
+    const { search, is_active } = filters;
+
     const loadBrands = useCallback(async () => {
-        const data = await brandsApi.fetchBrands(filters);
-        setBrands(data);
-    }, [filters]);
+        const requestId = ++requestIdRef.current;
+        const isLatest = () => requestId === requestIdRef.current;
+
+        setIsLoading(true);
+        setError(null);
+        try {
+            const data = await brandsApi.fetchBrands({ search, is_active });
+            if (isLatest()) setBrands(data);
+        } catch (err) {
+            if (isLatest()) setError(getErrorMessage(err, 'Error al cargar las marcas'));
+        } finally {
+            if (isLatest()) setIsLoading(false);
+        }
+    }, [search, is_active]);
 
     useEffect(() => {
         loadBrands();
@@ -46,5 +62,5 @@ export function useBrandsList(filters: BrandFilters) {
         setBrands((prev) => prev.map((brand) => (brand.id === updated.id ? updated : brand)));
     }, []);
 
-    return { brands, reload: loadBrands, removeBrandFromList, replaceBrandInList };
+    return { brands, isLoading, error, reload: loadBrands, removeBrandFromList, replaceBrandInList };
 }

@@ -1,33 +1,57 @@
-// =====================================================================
-// H3 · Desactivar y reactivar una marca — Integrante 3
-// Archivo: features/brands/components/BrandStatusButton.tsx
-// ---------------------------------------------------------------------
-// QUÉ HACE: botón "Desactivar" (marca activa) o "Reactivar" (marca inactiva) de cada fila.
-// Al hacer clic abre el ConfirmModal que YA EXISTE (components/ui/ConfirmModal.tsx).
-// Tu trabajo es la lógica y pasarle los datos correctos al modal.
-//
-// TAREAS:
-//   [ ] Estado isOpen para abrir/cerrar el ConfirmModal
-//   [ ] Inyectar al <ConfirmModal> según brand.is_active:
-//         activa   → variant="danger",  title="Desactivar marca",
-//                    description="¿Desactivar la marca <strong>X</strong>? Ya no aparecerá
-//                    al registrar productos nuevos.", confirmText="Sí, desactivar"
-//         inactiva → variant="primary", title="Reactivar marca",
-//                    description="¿Reactivar la marca <strong>X</strong>?", confirmText="Sí, reactivar"
-//   [ ] isLoading={isSaving} (de useBrandStatus) para el spinner y que no se pueda cerrar
-//   [ ] onConfirm: llamar toggleBrandStatus(brand)
-//         - si result.ok === false → toast.error(result.error) (ej. 403 sin permiso) y dejar el modal abierto
-//         - si ok → toast.success("Marca X desactivada" / "reactivada"), cerrar el modal y
-//           llamar onChanged({ ...brand, is_active: !brand.is_active })
-//   [ ] Estilo del botón como en UserTable: rojo para Desactivar, verde para Reactivar
-//
-// REUTILIZA: ConfirmModal (NO lo modifiques), toast (sonner)
-// NO CAMBIAR: las props (BrandStatusButtonProps). La tabla ya lo usa así.
-// REFERENCIA: el ConfirmModal de features/users/components/UserTable.tsx
-// =====================================================================
+import { useState } from "react";
+import { toast } from "sonner";
+import { ConfirmModal } from "../../../components/ui/ConfirmModal";
+import { useBrandStatus } from "../hooks/useBrandStatus";
 import type { BrandStatusButtonProps } from "../model/brands.types";
 
-export function BrandStatusButton(props: BrandStatusButtonProps) {
-    // TODO H3: abrir ConfirmModal y ejecutar la acción (ver TAREAS arriba)
-    return <button type="button">{props.brand.is_active ? "Desactivar" : "Reactivar"}</button>;
+export function BrandStatusButton({ brand, onChanged }: BrandStatusButtonProps) {
+    const [isOpen, setIsOpen] = useState(false);
+    const { toggleBrandStatus, isSaving } = useBrandStatus();
+
+    const handleConfirm = async () => {
+        const result = await toggleBrandStatus(brand);
+        if (result.ok === false) {
+            toast.error(result.error);
+            return;
+        }
+        toast.success(brand.is_active ? `Marca ${brand.name} desactivada` : `Marca ${brand.name} reactivada`);
+        setIsOpen(false);
+        onChanged({ ...brand, is_active: !brand.is_active });
+    };
+
+    return (
+        <>
+            <button
+                type="button"
+                onClick={() => setIsOpen(true)}
+                className={`rounded px-2 py-1 font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 ${brand.is_active
+                    ? "text-rose-600 hover:bg-rose-50 focus-visible:ring-rose-500"
+                    : "text-emerald-600 hover:bg-emerald-50 focus-visible:ring-emerald-500"
+                    }`}
+            >
+                {brand.is_active ? "Desactivar" : "Reactivar"}
+            </button>
+
+            <ConfirmModal
+                isOpen={isOpen}
+                onClose={() => setIsOpen(false)}
+                onConfirm={handleConfirm}
+                isLoading={isSaving}
+                variant={brand.is_active ? "danger" : "primary"}
+                title={brand.is_active ? "Desactivar marca" : "Reactivar marca"}
+                description={
+                    brand.is_active ? (
+                        <>
+                            ¿Desactivar la marca <strong>{brand.name}</strong>? Ya no aparecerá al registrar productos nuevos.
+                        </>
+                    ) : (
+                        <>
+                            ¿Reactivar la marca <strong>{brand.name}</strong>?
+                        </>
+                    )
+                }
+                confirmText={brand.is_active ? "Sí, desactivar" : "Sí, reactivar"}
+            />
+        </>
+    );
 }

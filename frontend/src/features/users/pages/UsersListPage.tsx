@@ -1,6 +1,6 @@
 // src/features/users/pages/UsersListPage.tsx
 import { Link } from "react-router-dom";
-import { Loader2 } from "lucide-react";
+import { Loader2, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { PageHeader } from "../../../components/layout/PageHeader";
 import { UserFiltersBar } from "../components/UserFiltersBar";
@@ -41,7 +41,8 @@ export function UsersListPage() {
                         to="/users/create"
                         className="inline-flex w-full items-center justify-center rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-slate-800 sm:w-auto"
                     >
-                        + Nuevo Usuario
+                        <Plus className="h-4 w-4" />
+                        Nuevo Usuario
                     </Link>
                 }
             />

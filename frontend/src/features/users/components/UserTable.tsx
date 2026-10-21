@@ -71,7 +71,7 @@ export function UserTable({ users, onToggleStatus, isProcessing = false }: UserT
                                                     : "text-emerald-600 hover:bg-emerald-50 focus-visible:ring-emerald-500"
                                                     }`}
                                             >
-                                                {u.is_active ? "Desactivar" : "Activar"}
+                                                {u.is_active ? "Desactivar" : "Reactivar"}
                                             </button>
                                         </div>
                                     </td>

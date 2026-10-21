@@ -1,46 +1,113 @@
-// =====================================================================
-// H2 · Crear y editar una marca — Integrante 2
-// Archivo: features/brands/components/BrandFormModal.tsx
-// ---------------------------------------------------------------------
-// QUÉ HACE: el ÚNICO formulario de marcas. Sirve para crear y para editar según `mode`.
-//   mode="create" → título "Nueva marca", campo vacío, botón "Crear marca", usa useCreateBrand
-//   mode="edit"   → título "Editar marca", nombre actual, botón "Guardar cambios", usa useUpdateBrand
-//
-// ESTADO ACTUAL: abre el <Modal> genérico con el título correcto, pero sin formulario.
-//
-// TAREAS:
-//   [ ] Usar useBrandForm para el valor del campo "Nombre" y sus errores
-//       - create: valores iniciales EMPTY_BRAND_FORM
-//       - edit:   valores iniciales toBrandFormValues(brand) (model/brands.mappers.ts)
-//   [ ] Campo "Nombre" con <Label> + <Input hasError={...}> + mensaje de error en rojo debajo
-//       (autoFocus en el campo al abrir)
-//   [ ] Al enviar (<form onSubmit>, con e.preventDefault()):
-//       1. validar con useBrandForm (Zod); si falla, mostrar el error y NO llamar al backend
-//       2. create → createBrand(values) · edit → updateBrand(brand, values)
-//       3. si result.ok: toast.success("Marca X creada" / "Cambios de X guardados"),
-//          llamar onSuccess(result.data) y cerrar con onClose()
-//       4. si result.ok === false: toast.error(result.error)  (409 nombre repetido, 403 sin permiso)
-//   [ ] Footer con <Button variant="secondary">Cancelar</Button> y
-//       <Button type="submit" isLoading={isSaving}>Crear marca / Guardar cambios</Button>
-//       (el botón submit debe estar dentro del <form> o usar el atributo form="id-del-form")
-//   [ ] Pasar isBusy={isSaving} al <Modal> para que no se cierre mientras guarda
-//   [ ] Al cerrar y volver a abrir, el formulario debe empezar limpio
-//       (pista: renderizar el contenido solo cuando isOpen, o usar key)
-//
-// REUTILIZA: Modal, Button, Input, Label (components/ui), toast (sonner)
-// NO CAMBIAR: las props (BrandFormModalProps). CreateBrandButton y EditBrandButton ya lo usan.
-// REFERENCIA: features/users/components/UserForm.tsx (validación con Zod y errores por campo)
-// =====================================================================
+import { useId, type FormEvent } from "react";
+import { toast } from "sonner";
 import { Modal } from "../../../components/ui/Modal";
-import type { BrandFormModalProps } from "../model/brands.types";
+import { Button } from "../../../components/ui/Button";
+import { Input } from "../../../components/ui/Input";
+import { Label } from "../../../components/ui/Label";
+import { useBrandForm } from "../hooks/useBrandForm";
+import { useCreateBrand } from "../hooks/useCreateBrand";
+import { useUpdateBrand } from "../hooks/useUpdateBrand";
+import { EMPTY_BRAND_FORM } from "../model/brands.constants";
+import { toBrandFormValues } from "../model/brands.mappers";
+import type { BrandFormModalProps, BrandFormValues } from "../model/brands.types";
 
-export function BrandFormModal(props: BrandFormModalProps) {
-    const isEdit = props.mode === "edit";
+export function BrandFormModal({ isOpen, mode, brand, onClose, onSuccess }: BrandFormModalProps) {
+    const isEdit = mode === "edit";
+    const { createBrand, isSaving: isCreating } = useCreateBrand();
+    const { updateBrand, isSaving: isUpdating } = useUpdateBrand();
+    const isSaving = isCreating || isUpdating;
+
+    const handleSubmit = async (values: BrandFormValues) => {
+        if (isSaving) return;
+
+        if (isEdit && !brand) {
+            toast.error("No se encontró la marca a editar");
+            return;
+        }
+
+        const result = isEdit && brand ? await updateBrand(brand, values) : await createBrand(values);
+
+        if (result.ok === false) {
+            toast.error(result.error);
+            return;
+        }
+
+        if (isEdit && result.data === brand) {
+            onClose();
+            return;
+        }
+
+        toast.success(isEdit ? `Cambios de ${result.data.name} guardados` : `Marca ${result.data.name} creada`);
+        onSuccess(result.data);
+        onClose();
+    };
 
     return (
-        <Modal isOpen={props.isOpen} title={isEdit ? "Editar marca" : "Nueva marca"} onClose={props.onClose}>
-            {/* TODO H2: formulario (ver TAREAS arriba) */}
-            <p className="text-sm text-zinc-500">Formulario pendiente (H2).</p>
+        <Modal isOpen={isOpen} title={isEdit ? "Editar marca" : "Nueva marca"} isBusy={isSaving} onClose={onClose}>
+            <BrandForm
+                initialValues={isEdit && brand ? toBrandFormValues(brand) : EMPTY_BRAND_FORM}
+                submitLabel={isEdit ? "Guardar cambios" : "Crear marca"}
+                isSaving={isSaving}
+                onSubmit={handleSubmit}
+                onCancel={onClose}
+            />
         </Modal>
+    );
+}
+
+interface BrandFormProps {
+    initialValues: BrandFormValues;
+    submitLabel: string;
+    isSaving: boolean;
+    onSubmit: (values: BrandFormValues) => void;
+    onCancel: () => void;
+}
+
+function BrandForm({ initialValues, submitLabel, isSaving, onSubmit, onCancel }: BrandFormProps) {
+    const { values, errors, handleChange, validate } = useBrandForm(initialValues);
+    const nameId = useId();
+    const errorId = `${nameId}-error`;
+
+    const handleSubmit = (e: FormEvent) => {
+        e.preventDefault();
+        if (!validate()) return;
+        onSubmit(values);
+    };
+
+    return (
+        <form onSubmit={handleSubmit} noValidate className="space-y-6">
+            <div>
+                <Label htmlFor={nameId} required>
+                    Nombre
+                </Label>
+                <Input
+                    id={nameId}
+                    name="name"
+                    type="text"
+                    autoFocus
+                    autoComplete="off"
+                    placeholder="Ej. Truper"
+                    value={values.name}
+                    onChange={handleChange}
+                    disabled={isSaving}
+                    hasError={!!errors.name}
+                    aria-describedby={errors.name ? errorId : undefined}
+                />
+                {errors.name && (
+                    <p id={errorId} className="mt-1.5 text-xs text-rose-600">
+                        {errors.name}
+                    </p>
+                )}
+            </div>
+
+            <div className="flex items-center justify-end gap-3">
+                <Button type="button" variant="secondary" onClick={onCancel} disabled={isSaving}>
+                    Cancelar
+                </Button>
+                <Button type="submit" isLoading={isSaving}>
+                    {submitLabel}
+                </Button>
+            </div>
+        </form>
     );
 }

@@ -1,28 +1,31 @@
-// =====================================================================
-// H3 · Desactivar y reactivar una marca — Integrante 3
-// Archivo: features/brands/hooks/useBrandStatus.ts
-// ---------------------------------------------------------------------
-// QUÉ HACE: desactiva (borrado lógico) o reactiva una marca.
-//
-// TAREAS:
-//   [ ] Estado isSaving
-//   [ ] Marca activa   → brandsApi.deactivateBrand(brand.id)            (DELETE /api/brands/:id)
-//       Marca inactiva → brandsApi.updateBrand(brand.id, { is_active: true }) (PATCH)
-//   [ ] Devolver ActionResult: { ok: true, data } o { ok: false, error: getErrorMessage(...) }
-//   [ ] Este hook NO muestra toasts ni abre modales: eso lo decide BrandStatusButton
-//
-// REFERENCIA: features/users/hooks/useUserStatus.ts (toggleUserStatus es lo mismo)
-// =====================================================================
-import { useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import type { ActionResult } from '../../../types/common';
 import type { Brand } from '../model/brands.types';
+import { deactivateBrand, updateBrand } from '../api/brands.service';
+import { getErrorMessage } from '../../../utils/getErrorMessage';
 
 export function useBrandStatus() {
-    const isSaving = false; // TODO H3: convertir en estado
+    const [isSaving, setIsSaving] = useState(false);
 
     const toggleBrandStatus = useCallback(async (brand: Brand): Promise<ActionResult<Brand | void>> => {
-        // TODO H3: implementar (ver TAREAS arriba)
-        return { ok: false, error: `Cambiar estado de "${brand.name}": pendiente (H3)` };
+        setIsSaving(true);
+        try {
+            let data;
+            if (brand.is_active) {
+                await deactivateBrand(brand.id);
+            } else {
+                data = await updateBrand(brand.id, { is_active: true });
+            }
+            return { ok: true, data };
+        } catch (error) {
+            const fallback = brand.is_active 
+                ? "Error al intentar desactivar la marca" 
+                : "Error al intentar reactivar la marca";
+                
+            return { ok: false, error: getErrorMessage(error, fallback) };
+        } finally {
+            setIsSaving(false);
+        }
     }, []);
 
     return { toggleBrandStatus, isSaving };

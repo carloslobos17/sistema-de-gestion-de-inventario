@@ -6,7 +6,7 @@
 // con la marca de esa fila. Ya está completo: todo el trabajo va en BrandFormModal.
 //
 // TAREAS:
-//   [ ] Dar al botón el estilo de acción de fila que usa UserTable ("Editar" en azul)
+//   [x] Dar al botón el estilo de acción de fila que usa UserTable ("Editar" en azul)
 //
 // NO CAMBIAR: las props (EditBrandButtonProps). La tabla ya lo usa así.
 // =====================================================================
@@ -19,8 +19,11 @@ export function EditBrandButton({ brand, onSaved }: EditBrandButtonProps) {
 
     return (
         <>
-            {/* TODO H2: estilo de acción de fila (ver "Editar" en UserTable) */}
-            <button type="button" onClick={() => setIsOpen(true)}>
+            <button
+                type="button"
+                onClick={() => setIsOpen(true)}
+                className="rounded px-2 py-1 font-medium text-blue-600 transition-colors hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+            >
                 Editar
             </button>
 
