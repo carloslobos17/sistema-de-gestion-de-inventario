@@ -3,6 +3,7 @@
 import { Loader2 } from "lucide-react";
 import { PageHeader } from "../../../components/layout/PageHeader";
 import { Pagination } from "../../../components/ui/Pagination";
+import { useCanManageStructure } from "../../auth/hooks/useCanManageStructure";
 import { CategoryFiltersBar } from "../components/CategoryFiltersBar";
 import { CategoryTable } from "../components/CategoryTable";
 import { CreateCategoryButton } from "../components/CreateCategoryButton";
@@ -14,6 +15,9 @@ export function CategoriesListPage() {
     const { categories, meta, isLoading, error, reload, removeCategoryFromList, replaceCategoryInList } =
         useCategoriesList(filters, setPage);
 
+    // Sin permiso (ej. vendedor): ve la lista, pero sin "+ Nueva categoría", Editar ni Desactivar
+    const canManage = useCanManageStructure();
+
     // "Cargando..." solo en la primera carga; después la tabla se queda visible (atenuada)
     const isFirstLoad = isLoading && categories.length === 0;
     // La página quedó vacía (ej. se desactivó su única categoría): el hook ya está yendo a la anterior
@@ -24,7 +28,7 @@ export function CategoriesListPage() {
             <PageHeader
                 title="Categorías"
                 description="Administra las categorías de los productos del inventario."
-                action={<CreateCategoryButton onCreated={() => reload()} />}
+                action={canManage ? <CreateCategoryButton onCreated={() => reload()} /> : undefined}
             />
 
             <CategoryFiltersBar status={status} onStatusChange={setStatus} search={search} onSearchChange={setSearch} />
@@ -49,9 +53,8 @@ export function CategoriesListPage() {
                 <div className={`space-y-4 transition-opacity ${isLoading ? "opacity-60" : ""}`} aria-busy={isLoading}>
                     <CategoryTable
                         categories={categories}
+                        canManage={canManage} //Maneja permiso de edicion de categorias
                         onCategorySaved={replaceCategoryInList}
-                        // Al desactivar/reactivar ya no pertenece a esta pestaña: se quita al instante
-                        // y se recarga para rellenar la página y actualizar el total
                         onCategoryStatusChanged={(category) => {
                             removeCategoryFromList(category.id);
                             reload();

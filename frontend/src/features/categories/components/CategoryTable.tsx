@@ -1,11 +1,9 @@
-// src/features/categories/components/CategoryTable.tsx
-// Tabla de categorías. Cada fila monta EditCategoryButton y CategoryStatusButton.
 import { Badge } from "../../../components/ui/Badge";
 import { CategoryStatusButton } from "./CategoryStatusButton";
 import { EditCategoryButton } from "./EditCategoryButton";
 import type { CategoryTableProps } from "../model/categories.types";
 
-export function CategoryTable({ categories, onCategorySaved, onCategoryStatusChanged }: CategoryTableProps) {
+export function CategoryTable({ categories, onCategorySaved, onCategoryStatusChanged, canManage }: CategoryTableProps) {
     return (
         <div className="overflow-hidden rounded-lg border border-zinc-200 bg-white shadow-sm">
             <div className="overflow-x-auto">
@@ -14,7 +12,7 @@ export function CategoryTable({ categories, onCategorySaved, onCategoryStatusCha
                         <tr>
                             <th scope="col" className="px-6 py-3">Nombre</th>
                             <th scope="col" className="px-6 py-3">Estado</th>
-                            <th scope="col" className="px-6 py-3 text-right">Acciones</th>
+                            {canManage && <th scope="col" className="px-6 py-3 text-right">Acciones</th>}
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
@@ -26,12 +24,14 @@ export function CategoryTable({ categories, onCategorySaved, onCategoryStatusCha
                                         {category.is_active ? "Activa" : "Inactiva"}
                                     </Badge>
                                 </td>
-                                <td className="px-6 py-4">
-                                    <div className="flex justify-end gap-1">
-                                        <EditCategoryButton category={category} onSaved={onCategorySaved} />
-                                        <CategoryStatusButton category={category} onChanged={onCategoryStatusChanged} />
-                                    </div>
-                                </td>
+                                {canManage && (
+                                    <td className="px-6 py-4">
+                                        <div className="flex justify-end gap-1">
+                                            <EditCategoryButton category={category} onSaved={onCategorySaved} />
+                                            <CategoryStatusButton category={category} onChanged={onCategoryStatusChanged} />
+                                        </div>
+                                    </td>
+                                )}
                             </tr>
                         ))}
                     </tbody>

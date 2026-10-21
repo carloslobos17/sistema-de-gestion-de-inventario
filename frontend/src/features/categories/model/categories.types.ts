@@ -72,6 +72,7 @@ export interface CategoryTableProps {
     categories: Category[];
     onCategorySaved: (category: Category) => void; // se editó → actualizar la fila
     onCategoryStatusChanged: (category: Category) => void; // se desactivó/reactivó → quitarla de la pestaña
+    canManage: boolean; // false → sin columna Acciones (ej. vendedores)
 }
 
 // Botón "+ Nueva categoría" (va en el PageHeader)
