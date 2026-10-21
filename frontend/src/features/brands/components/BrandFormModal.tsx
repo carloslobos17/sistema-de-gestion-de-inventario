@@ -1,17 +1,3 @@
-// =====================================================================
-// H2 · Crear y editar una marca — Integrante 2
-// Archivo: features/brands/components/BrandFormModal.tsx
-// ---------------------------------------------------------------------
-// QUÉ HACE: el ÚNICO formulario de marcas. Sirve para crear y para editar según `mode`.
-//   mode="create" → "Nueva marca", campo vacío, botón "Crear marca", usa useCreateBrand
-//   mode="edit"   → "Editar marca", nombre actual, botón "Guardar cambios", usa useUpdateBrand
-//
-// Está dividido en dos partes:
-//   - BrandFormModal (exterior): guarda con los hooks y dibuja el <Modal> (isBusy mientras guarda).
-//   - BrandForm (interior): estado del campo y validación. Va dentro del <Modal>, que no
-//     renderiza nada cuando está cerrado; por eso se monta de nuevo en cada apertura y el
-//     formulario siempre empieza limpio (sin texto ni errores anteriores).
-// =====================================================================
 import { useId, type FormEvent } from "react";
 import { toast } from "sonner";
 import { Modal } from "../../../components/ui/Modal";
@@ -41,13 +27,11 @@ export function BrandFormModal({ isOpen, mode, brand, onClose, onSuccess }: Bran
 
         const result = isEdit && brand ? await updateBrand(brand, values) : await createBrand(values);
 
-        // Error (409 nombre repetido, 403 sin permiso...): el modal sigue abierto con lo escrito
         if (result.ok === false) {
             toast.error(result.error);
             return;
         }
 
-        // Edición sin cambios: el hook devuelve la misma marca → solo cerrar
         if (isEdit && result.data === brand) {
             onClose();
             return;
@@ -71,9 +55,6 @@ export function BrandFormModal({ isOpen, mode, brand, onClose, onSuccess }: Bran
     );
 }
 
-// ==========================================
-// Formulario interno (se monta al abrir el modal)
-// ==========================================
 interface BrandFormProps {
     initialValues: BrandFormValues;
     submitLabel: string;
@@ -89,7 +70,6 @@ function BrandForm({ initialValues, submitLabel, isSaving, onSubmit, onCancel }:
 
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
-        // Si no pasa la validación, el error se muestra y NO se llama al backend
         if (!validate()) return;
         onSubmit(values);
     };

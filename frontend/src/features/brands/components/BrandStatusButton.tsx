@@ -1,5 +1,3 @@
-// src/features/brands/components/BrandStatusButton.tsx
-// Botón Desactivar/Reactivar de cada fila. Abre el ConfirmModal y usa useBrandStatus.
 import { useState } from "react";
 import { toast } from "sonner";
 import { ConfirmModal } from "../../../components/ui/ConfirmModal";
