@@ -1,15 +1,3 @@
-// =====================================================================
-// H2 · Crear y editar una marca — Integrante 2
-// Archivo: features/brands/components/CreateBrandButton.tsx
-// ---------------------------------------------------------------------
-// QUÉ HACE: botón "+ Nueva marca" del encabezado. Abre BrandFormModal en modo "create".
-// Ya está completo: solo abre/cierra el modal. Todo el trabajo va en BrandFormModal.
-//
-// TAREAS:
-//   [ ] Revisar que el botón use <Button> (ya lo hace) y se vea bien en el PageHeader
-//
-// NO CAMBIAR: las props (CreateBrandButtonProps). La página ya lo usa así.
-// =====================================================================
 import { useState } from "react";
 import { Plus } from "lucide-react";
 import { Button } from "../../../components/ui/Button";
