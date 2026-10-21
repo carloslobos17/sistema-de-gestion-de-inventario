@@ -3,6 +3,7 @@
 import { Loader2 } from "lucide-react";
 import { PageHeader } from "../../../components/layout/PageHeader";
 import { Pagination } from "../../../components/ui/Pagination";
+import { useCanManageStructure } from "../../auth/hooks/useCanManageStructure";
 import { BrandFiltersBar } from "../components/BrandFiltersBar";
 import { BrandTable } from "../components/BrandTable";
 import { CreateBrandButton } from "../components/CreateBrandButton";
@@ -16,6 +17,9 @@ export function BrandsListPage() {
         setPage
     );
 
+    // Sin permiso (ej. vendedor): ve la lista, pero sin "+ Nueva marca", Editar ni Desactivar
+    const canManage = useCanManageStructure();
+
     const isFirstLoad = isLoading && brands.length === 0;
     // La página quedó vacía (ej. se desactivó su única marca): el hook ya está yendo a la anterior
     const isLeavingEmptyPage = meta !== null && meta.page > Math.max(meta.totalPages, 1);
@@ -25,7 +29,7 @@ export function BrandsListPage() {
             <PageHeader
                 title="Marcas"
                 description="Administra las marcas de los productos del inventario."
-                action={<CreateBrandButton onCreated={() => reload()} />}
+                action={canManage ? <CreateBrandButton onCreated={() => reload()} /> : undefined}
             />
 
             <BrandFiltersBar status={status} onStatusChange={setStatus} search={search} onSearchChange={setSearch} />
@@ -47,6 +51,7 @@ export function BrandsListPage() {
                 <div className={`space-y-4 transition-opacity ${isLoading ? "opacity-60" : ""}`} aria-busy={isLoading}>
                     <BrandTable
                         brands={brands}
+                        canManage={canManage}
                         onBrandSaved={replaceBrandInList}
                         onBrandStatusChanged={(brand) => {
                             // Se quita al instante y se recarga para rellenar la página y actualizar el total

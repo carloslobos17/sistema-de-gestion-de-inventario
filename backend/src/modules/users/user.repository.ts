@@ -38,7 +38,8 @@ function flattenRole<T extends { role: { name: string } }>(row: T) {
 }
 
 export class UserRepository {
-    // Buscar un usuario activo por su username para el login
+    // Buscar un usuario activo por su username para el login.
+    // Trae también los permisos de su rol para enviarlos al frontend.
     async findByUsername(username: string): Promise<UserWithCredentials | null> {
         const row = await prisma.user.findUnique({
             where: {
@@ -46,12 +47,16 @@ export class UserRepository {
                 is_active: true
             },
             select: {
-                ...USER_WITH_ROLE_SELECT,
-                password_hash: true
+                ...USER_SELECT,
+                password_hash: true,
+                role: { select: { name: true, can_manage_structure: true } }
             }
         });
 
-        return row ? flattenRole(row) : null;
+        if (!row) return null;
+
+        const { role, ...user } = row;
+        return { ...user, role: role.name, can_manage_structure: role.can_manage_structure };
     }
 
     async findById(id: number): Promise<UserListed | null> {

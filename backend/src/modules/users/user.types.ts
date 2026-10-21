@@ -16,9 +16,10 @@ export interface UserListed extends User {
     role: string;
 }
 
-// Solo para verificar credenciales en el login
+// Solo para el login: credenciales + permisos del rol
 export interface UserWithCredentials extends UserListed {
     password_hash: string;
+    can_manage_structure: boolean; // viene de roles.can_manage_structure
 }
 
 // Lo que se escribe en la BD al crear (password ya convertido a hash)
