@@ -13,10 +13,12 @@ export interface Category {
     is_active: boolean;
 }
 
-// Filtros del listado → GET /api/categories?search=&is_active=
+// Filtros del listado → GET /api/categories?search=&is_active=&page=&limit=
 export interface CategoryFilters {
     search?: string;
     is_active?: boolean;
+    page?: number; // sin page el backend usa 1
+    limit?: number; // sin limit el backend usa 10
 }
 
 // POST /api/categories

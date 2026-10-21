@@ -2,17 +2,17 @@
 // Único archivo que habla con /api/categories.
 import { apiClient } from '../../../api/axiosConfig';
 import { toApiError } from '../../../api/apiError';
-import type { ApiResponse } from '../../../api/api.types';
+import type { ApiResponse, PaginatedResponse } from '../../../api/api.types';
 import { toCategoryQueryParams } from '../model/categories.mappers';
 import type { Category, CategoryFilters, CreateCategoryPayload, UpdateCategoryPayload } from '../model/categories.types';
 
-// GET /api/categories?search=&is_active=
-export async function fetchCategories(filters: CategoryFilters = {}): Promise<Category[]> {
+// GET /api/categories?search=&is_active=&page=&limit= → { data, meta }
+export async function fetchCategories(filters: CategoryFilters = {}): Promise<PaginatedResponse<Category>> {
     try {
-        const response = await apiClient.get<ApiResponse<Category[]>>('/categories', {
+        const response = await apiClient.get<PaginatedResponse<Category>>('/categories', {
             params: toCategoryQueryParams(filters),
         });
-        return response.data.data;
+        return response.data;
     } catch (error) {
         throw toApiError(error, 'No se pudieron cargar las categorías');
     }
