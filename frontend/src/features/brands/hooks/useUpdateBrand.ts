@@ -3,26 +3,35 @@
 // Archivo: features/brands/hooks/useUpdateBrand.ts
 // ---------------------------------------------------------------------
 // QUÉ HACE: cambia el nombre de una marca y devuelve el resultado como ActionResult.
-//
-// TAREAS:
-//   [ ] Armar el payload con toUpdateBrandPayload(values, original)
-//   [ ] Si el payload está vacío (no cambió el nombre) → devolver { ok: true, data: original }
-//       SIN llamar al backend
-//   [ ] Estado isSaving
-//   [ ] Llamar brandsApi.updateBrand(original.id, payload)
-//   [ ] Éxito / error igual que useCreateBrand
-//
-// REFERENCIA: features/users/hooks/useUpdateUser.ts (es casi idéntico)
+// Si el nombre no cambió, devuelve la marca original SIN llamar al backend.
+// NO muestra toasts ni cierra modales: eso lo decide BrandFormModal.
 // =====================================================================
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
+import * as brandsApi from '../api/brands.service';
+import { toUpdateBrandPayload } from '../model/brands.mappers';
+import { getErrorMessage } from '../../../utils/getErrorMessage';
 import type { Brand, BrandActionResult, BrandFormValues } from '../model/brands.types';
 
 export function useUpdateBrand() {
-    const isSaving = false; // TODO H2: convertir en estado
+    const [isSaving, setIsSaving] = useState(false);
 
     const updateBrand = useCallback(async (original: Brand, values: BrandFormValues): Promise<BrandActionResult> => {
-        // TODO H2: implementar (ver TAREAS arriba)
-        return { ok: false, error: `Editar "${original.name}" → "${values.name}": pendiente (H2)` };
+        const payload = toUpdateBrandPayload(values, original);
+
+        // Nada cambió: no hace falta llamar al backend
+        if (Object.keys(payload).length === 0) {
+            return { ok: true, data: original };
+        }
+
+        setIsSaving(true);
+        try {
+            const updated = await brandsApi.updateBrand(original.id, payload);
+            return { ok: true, data: updated };
+        } catch (err) {
+            return { ok: false, error: getErrorMessage(err, 'Error al actualizar la marca') };
+        } finally {
+            setIsSaving(false);
+        }
     }, []);
 
     return { updateBrand, isSaving };

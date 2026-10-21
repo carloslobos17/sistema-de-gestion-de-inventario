@@ -1,3 +1,5 @@
+// src/features/brands/components/BrandStatusButton.tsx
+// Botón Desactivar/Reactivar de cada fila. Abre el ConfirmModal y usa useBrandStatus.
 import { useState } from "react";
 import { toast } from "sonner";
 import { ConfirmModal } from "../../../components/ui/ConfirmModal";
@@ -10,7 +12,7 @@ export function BrandStatusButton({ brand, onChanged }: BrandStatusButtonProps) 
 
     const handleConfirm = async () => {
         const result = await toggleBrandStatus(brand);
-        if (!result.ok) {
+        if (result.ok === false) {
             toast.error(result.error);
             return;
         }
@@ -24,9 +26,9 @@ export function BrandStatusButton({ brand, onChanged }: BrandStatusButtonProps) 
             <button
                 type="button"
                 onClick={() => setIsOpen(true)}
-                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${brand.is_active
-                        ? "bg-red-100 text-red-700 hover:bg-red-200"
-                        : "bg-green-100 text-green-700 hover:bg-green-200"
+                className={`rounded px-2 py-1 font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 ${brand.is_active
+                    ? "text-rose-600 hover:bg-rose-50 focus-visible:ring-rose-500"
+                    : "text-emerald-600 hover:bg-emerald-50 focus-visible:ring-emerald-500"
                     }`}
             >
                 {brand.is_active ? "Desactivar" : "Reactivar"}

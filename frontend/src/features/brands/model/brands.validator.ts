@@ -2,19 +2,18 @@
 // H2 · Crear y editar una marca — Integrante 2
 // Archivo: features/brands/model/brands.validator.ts
 // ---------------------------------------------------------------------
-// QUÉ HACE: reglas de validación del formulario de marca (Zod), iguales al backend.
-//
-// TAREAS:
-//   [ ] name: .trim()
-//   [ ] mínimo BRAND_NAME_MIN_LENGTH (2): "El nombre debe tener al menos 2 caracteres"
-//   [ ] máximo BRAND_NAME_MAX_LENGTH (100): "El nombre no puede superar los 100 caracteres"
-//   [ ] Usar las constantes de model/brands.constants.ts, no escribir 2 y 100 a mano
-//
-// REFERENCIA: features/users/model/users.validator.ts
+// QUÉ HACE: reglas de validación del formulario de marca (Zod), iguales al backend
+// (backend/src/modules/brands/brand.schema.ts).
+// La limpieza de espacios internos ("3M    Company" → "3M Company") la hace el mapper
+// toCreateBrandPayload / toUpdateBrandPayload al enviar.
 // =====================================================================
 import { z } from 'zod';
+import { BRAND_NAME_MAX_LENGTH, BRAND_NAME_MIN_LENGTH } from './brands.constants';
 
-// TODO H2: agregar las reglas (ver TAREAS arriba)
 export const brandFormSchema = z.object({
-    name: z.string(),
+    name: z
+        .string()
+        .trim()
+        .min(BRAND_NAME_MIN_LENGTH, `El nombre debe tener al menos ${BRAND_NAME_MIN_LENGTH} caracteres`)
+        .max(BRAND_NAME_MAX_LENGTH, `El nombre no puede superar los ${BRAND_NAME_MAX_LENGTH} caracteres`),
 });

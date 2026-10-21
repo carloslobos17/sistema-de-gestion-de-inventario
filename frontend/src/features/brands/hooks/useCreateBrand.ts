@@ -3,25 +3,29 @@
 // Archivo: features/brands/hooks/useCreateBrand.ts
 // ---------------------------------------------------------------------
 // QUÉ HACE: crea una marca y devuelve el resultado como ActionResult.
-//
-// TAREAS:
-//   [ ] Estado isSaving (true mientras espera al backend, false en finally)
-//   [ ] Llamar brandsApi.createBrand(toCreateBrandPayload(values))
-//   [ ] Éxito → { ok: true, data: marcaCreada }
-//   [ ] Error → { ok: false, error: getErrorMessage(err, 'Error al crear la marca') }
-//   [ ] Este hook NO muestra toasts ni cierra modales: eso lo decide BrandFormModal
-//
-// REFERENCIA: features/users/hooks/useCreateUser.ts (es casi idéntico)
+// NO muestra toasts ni cierra modales: eso lo decide BrandFormModal.
 // =====================================================================
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
+import * as brandsApi from '../api/brands.service';
+import { toCreateBrandPayload } from '../model/brands.mappers';
+import { getErrorMessage } from '../../../utils/getErrorMessage';
 import type { BrandActionResult, BrandFormValues } from '../model/brands.types';
 
 export function useCreateBrand() {
-    const isSaving = false; // TODO H2: convertir en estado
+    const [isSaving, setIsSaving] = useState(false);
 
     const createBrand = useCallback(async (values: BrandFormValues): Promise<BrandActionResult> => {
-        // TODO H2: implementar (ver TAREAS arriba)
-        return { ok: false, error: `Crear marca "${values.name}": pendiente (H2)` };
+        setIsSaving(true);
+        try {
+            // El mapper limpia los espacios: "  3M    Company " → "3M Company"
+            const created = await brandsApi.createBrand(toCreateBrandPayload(values));
+            return { ok: true, data: created };
+        } catch (err) {
+            // 409 (nombre repetido) y 403 (sin permiso) traen el mensaje del backend
+            return { ok: false, error: getErrorMessage(err, 'Error al crear la marca') };
+        } finally {
+            setIsSaving(false);
+        }
     }, []);
 
     return { createBrand, isSaving };
