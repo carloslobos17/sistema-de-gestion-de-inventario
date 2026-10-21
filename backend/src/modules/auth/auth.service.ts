@@ -34,7 +34,8 @@ export class AuthService {
                 first_name: user.first_name,
                 last_name: user.last_name,
                 role_id: user.role_id,
-                role: user.role
+                role: user.role,
+                can_manage_structure: user.can_manage_structure // el frontend lo usa para mostrar u ocultar botones
             },
             accessToken,
             refreshToken

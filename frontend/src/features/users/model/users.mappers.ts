@@ -1,6 +1,19 @@
-// src/features/users/users.mappers.ts
+// src/features/users/model/users.mappers.ts
 // Funciones puras que convierten datos de una forma a otra.
-import type { CreateUserPayload, UpdateUserPayload, UserFormValues, UserItem } from './users.types';
+import type { CreateUserPayload, UpdateUserPayload, UserFilters, UserFormValues, UserItem } from './users.types';
+
+// Filtros → query string de GET /api/users (omite los vacíos)
+export function toUserQueryParams(filters: UserFilters): Record<string, string> {
+    const params: Record<string, string> = {};
+
+    if (filters.search?.trim()) params.search = filters.search.trim();
+    if (filters.role_id) params.role_id = String(filters.role_id);
+    if (filters.is_active !== undefined) params.is_active = String(filters.is_active);
+    if (filters.page) params.page = String(filters.page);
+    if (filters.limit) params.limit = String(filters.limit);
+
+    return params;
+}
 
 // Usuario del backend → valores iniciales del formulario (la contraseña nunca se devuelve)
 export function toUserFormValues(user: UserItem): UserFormValues {

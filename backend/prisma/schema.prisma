@@ -78,6 +78,7 @@ model User {
   role          Role          @relation(fields: [role_id], references: [id])
   refresh_token RefreshToken?
 
+  @@index([is_active, created_at])
   @@map("users")
 }
 
@@ -101,6 +102,7 @@ model Category {
   name      String  @unique @db.VarChar(100)
   is_active Boolean @default(true)
 
+  @@index([is_active, name])
   @@map("categories")
 }
 
@@ -109,6 +111,7 @@ model Brand {
   name      String  @unique @db.VarChar(100)
   is_active Boolean @default(true)
 
+  @@index([is_active, name])
   @@map("brands")
 }
 

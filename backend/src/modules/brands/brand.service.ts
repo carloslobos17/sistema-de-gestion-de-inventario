@@ -2,13 +2,18 @@
 import { BrandRepository } from './brand.repository';
 import { AppError } from '../../utils/AppError';
 import type { CreateBrandInput, UpdateBrandInput } from './brand.schema';
-import type { Brand, BrandFilters } from './brand.types';
+import type { Brand, BrandFilters, BrandOption } from './brand.types';
+import type { PaginatedResult, PaginationParams } from '../../types/pagination.types';
 
 export class BrandService {
     private brandRepository = new BrandRepository();
 
-    async list(filters: BrandFilters = {}): Promise<Brand[]> {
-        return this.brandRepository.findAll(filters);
+    async list(filters: BrandFilters, pagination: PaginationParams): Promise<PaginatedResult<Brand>> {
+        return this.brandRepository.findPage(filters, pagination);
+    }
+
+    async listOptions(): Promise<BrandOption[]> {
+        return this.brandRepository.findOptions();
     }
 
     async getById(id: number): Promise<Brand> {

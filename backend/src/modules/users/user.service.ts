@@ -1,16 +1,18 @@
+// src/modules/users/user.service.ts
 import bcrypt from 'bcrypt';
 import { UserRepository } from './user.repository';
 import { AppError } from '../../utils/AppError';
 import type { CreateUserInput, UpdateUserInput } from './user.schema';
 import type { UpdateUserData, UserListed, UserFilters } from './user.types';
+import type { PaginatedResult, PaginationParams } from '../../types/pagination.types';
 
 const SALT_ROUNDS = 10;
 
 export class UserService {
     private userRepository = new UserRepository();
 
-    async list(filters: UserFilters = {}): Promise<UserListed[]> {
-        return this.userRepository.findAll(filters);
+    async list(filters: UserFilters, pagination: PaginationParams): Promise<PaginatedResult<UserListed>> {
+        return this.userRepository.findPage(filters, pagination);
     }
 
     async getById(id: number): Promise<UserListed> {

@@ -3,26 +3,17 @@
 // Funciones puras: reciben datos, hacen la petición y devuelven el resultado (o lanzan un Error legible).
 import { apiClient } from '../../../api/axiosConfig';
 import { toApiError } from '../../../api/apiError';
-import type { ApiResponse } from '../../../api/api.types';
+import type { ApiResponse, PaginatedResponse } from '../../../api/api.types';
+import { toUserQueryParams } from '../model/users.mappers';
 import type { CreateUserPayload, UpdateUserPayload, UserFilters, UserItem } from '../model/users.types';
 
-// Filtros → query string de GET /api/users (omite los vacíos)
-function toQueryParams(filters: UserFilters): Record<string, string> {
-    const params: Record<string, string> = {};
-
-    if (filters.search?.trim()) params.search = filters.search.trim();
-    if (filters.role_id) params.role_id = String(filters.role_id);
-    if (filters.is_active !== undefined) params.is_active = String(filters.is_active);
-
-    return params;
-}
-
-export async function fetchUsers(filters: UserFilters = {}): Promise<UserItem[]> {
+// GET /api/users?search=&role_id=&is_active=&page=&limit= → { data, meta }
+export async function fetchUsers(filters: UserFilters = {}): Promise<PaginatedResponse<UserItem>> {
     try {
-        const response = await apiClient.get<ApiResponse<UserItem[]>>('/users', {
-            params: toQueryParams(filters),
+        const response = await apiClient.get<PaginatedResponse<UserItem>>('/users', {
+            params: toUserQueryParams(filters),
         });
-        return response.data.data;
+        return response.data;
     } catch (error) {
         throw toApiError(error, 'No se pudieron cargar los usuarios');
     }

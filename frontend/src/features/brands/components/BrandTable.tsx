@@ -3,7 +3,7 @@ import { BrandStatusButton } from "./BrandStatusButton";
 import { EditBrandButton } from "./EditBrandButton";
 import type { BrandTableProps } from "../model/brands.types";
 
-export function BrandTable({ brands, onBrandSaved, onBrandStatusChanged }: BrandTableProps) {
+export function BrandTable({ brands, onBrandSaved, onBrandStatusChanged, canManage }: BrandTableProps) {
     return (
         <div className="overflow-hidden rounded-lg border border-zinc-200 bg-white shadow-sm">
             <div className="overflow-x-auto">
@@ -12,7 +12,7 @@ export function BrandTable({ brands, onBrandSaved, onBrandStatusChanged }: Brand
                         <tr>
                             <th scope="col" className="px-6 py-3">Nombre</th>
                             <th scope="col" className="px-6 py-3">Estado</th>
-                            <th scope="col" className="px-6 py-3 text-right">Acciones</th>
+                            {canManage && <th scope="col" className="px-6 py-3 text-right">Acciones</th>}
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
@@ -24,12 +24,14 @@ export function BrandTable({ brands, onBrandSaved, onBrandStatusChanged }: Brand
                                         {brand.is_active ? "Activa" : "Inactiva"}
                                     </Badge>
                                 </td>
-                                <td className="px-6 py-4">
-                                    <div className="flex justify-end gap-1">
-                                        <EditBrandButton brand={brand} onSaved={onBrandSaved} />
-                                        <BrandStatusButton brand={brand} onChanged={onBrandStatusChanged} />
-                                    </div>
-                                </td>
+                                {canManage && (
+                                    <td className="px-6 py-4">
+                                        <div className="flex justify-end gap-1">
+                                            <EditBrandButton brand={brand} onSaved={onBrandSaved} />
+                                            <BrandStatusButton brand={brand} onChanged={onBrandStatusChanged} />
+                                        </div>
+                                    </td>
+                                )}
                             </tr>
                         ))}
                     </tbody>

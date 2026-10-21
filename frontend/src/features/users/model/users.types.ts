@@ -1,4 +1,4 @@
-// src/features/users/users.types.ts
+// src/features/users/model/users.types.ts
 // Tipos de dominio y contratos del módulo de usuarios.
 
 // ==========================================
@@ -16,10 +16,13 @@ export interface UserItem {
     created_at: string;
 }
 
+// Filtros del listado → GET /api/users?search=&role_id=&is_active=&page=&limit=
 export interface UserFilters {
     search?: string;
     role_id?: number;
     is_active?: boolean;
+    page?: number; // sin page el backend usa 1
+    limit?: number; // sin limit el backend usa 10
 }
 
 export interface CreateUserPayload {

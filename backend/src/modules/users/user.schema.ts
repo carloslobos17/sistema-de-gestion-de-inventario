@@ -1,4 +1,6 @@
+// src/modules/users/user.schema.ts
 import { z } from 'zod';
+import { paginationQuerySchema } from '../../utils/pagination';
 
 // Expresión regular: solo letras (incluye tildes, diéresis y eñes) y espacios
 const NAME_REGEX = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/;
@@ -83,18 +85,19 @@ export const userIdParamSchema = z.object({
     id: z.coerce.number().int('El ID debe ser entero').positive('El ID de usuario no es válido')
 });
 
-// Filtros del listado (GET /api/users?search=ana&role_id=2&is_active=false)
+// Filtros + paginación del listado (GET /api/users?search=ana&role_id=2&is_active=false&page=1&limit=10)
 export const userFiltersSchema = z.object({
-    search: z.string().trim().min(1).max(100).optional(),
+    search: z.string().trim().max(100).optional().transform((v) => v || undefined),
     role_id: z.coerce.number().int().positive('El rol no es válido').optional(),
     is_active: z
         .enum(['true', 'false'], { message: 'is_active debe ser "true" o "false"' })
         .transform((value) => value === 'true')
-        .optional()
+        .optional(),
+    ...paginationQuerySchema.shape // page (default 1) y limit (default 10, máx. 100)
 });
 
 // Tipos TypeScript inferidos
 export type CreateUserInput = z.infer<typeof createUserSchema>;
 export type UpdateUserInput = z.infer<typeof updateUserSchema>;
 export type UserIdParam = z.infer<typeof userIdParamSchema>;
-export type UserFilters = z.infer<typeof userFiltersSchema>;
+// UserFilters vive en user.types.ts (igual que BrandFilters y CategoryFilters)

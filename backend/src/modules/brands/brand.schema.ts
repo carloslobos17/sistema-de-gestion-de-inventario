@@ -1,5 +1,6 @@
 // src/modules/brands/brand.schema.ts
 import { z } from 'zod';
+import { paginationQuerySchema } from '../../utils/pagination';
 
 // Nombre: sin espacios al inicio/final y con un solo espacio entre palabras ("  3M   Company " → "3M Company")
 const brandNameSchema = z
@@ -28,14 +29,16 @@ export const brandIdParamSchema = z.object({
     id: z.coerce.number().int().positive('El ID de la marca no es válido')
 });
 
-// Filtros del listado (todo llega como texto en la URL)
+// Filtros + paginación del listado: ?search=&is_active=&page=&limit= (todo llega como texto)
 export const brandFiltersSchema = z.object({
-    search: z.string().trim().min(1).max(100).optional(),
+    // search vacío ("") se trata como si no se hubiera enviado
+    search: z.string().trim().max(100).optional().transform((value) => value || undefined),
     // OJO: z.coerce.boolean() convertiría "false" en true, por eso se hace así
     is_active: z
         .enum(['true', 'false'], { message: 'is_active debe ser "true" o "false"' })
         .transform((value) => value === 'true')
-        .optional()
+        .optional(),
+    ...paginationQuerySchema.shape
 });
 
 export type CreateBrandInput = z.infer<typeof createBrandSchema>;

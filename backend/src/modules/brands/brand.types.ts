@@ -6,6 +6,12 @@ export interface Brand {
     is_active: boolean;
 }
 
+// Opción para los selects (GET /api/brands/options): solo lo necesario
+export interface BrandOption {
+    id: number;
+    name: string;
+}
+
 // Lo que se escribe en la BD al crear
 export interface CreateBrandData {
     name: string;

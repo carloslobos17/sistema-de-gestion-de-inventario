@@ -1,3 +1,6 @@
+// src/modules/users/user.types.ts
+// Tipos del módulo de usuarios (backend).
+
 export interface User {
     id: number;
     role_id: number;
@@ -8,16 +11,18 @@ export interface User {
     created_at: Date;
 }
 
-
-export interface UserWithCredentials extends User {
-    password_hash: string;
-    role: string;
-}
-
+// Usuario con el nombre de su rol (lo que se devuelve al frontend)
 export interface UserListed extends User {
     role: string;
 }
 
+// Solo para el login: credenciales + permisos del rol
+export interface UserWithCredentials extends UserListed {
+    password_hash: string;
+    can_manage_structure: boolean; // viene de roles.can_manage_structure
+}
+
+// Lo que se escribe en la BD al crear (password ya convertido a hash)
 export interface CreateUserData {
     role_id: number;
     username: string;
@@ -26,8 +31,16 @@ export interface CreateUserData {
     password_hash: string;
 }
 
-
+// Lo que se escribe en la BD al editar (password ya convertido a hash)
 export type UpdateUserData = Partial<CreateUserData & { is_active: boolean }>;
+
+// Filtros del listado: GET /api/users?search=&role_id=&is_active=
+// (page y limit van aparte, como PaginationParams)
+export interface UserFilters {
+    search?: string;     // busca en username, first_name o last_name
+    role_id?: number;    // filtrar por un rol específico
+    is_active?: boolean; // filtrar activos / inactivos
+}
 
 export interface RefreshTokenData {
     id: number;
@@ -35,11 +48,4 @@ export interface RefreshTokenData {
     token: string;
     expires_at: Date;
     is_revoked: boolean;
-}
-
-
-export interface UserFilters {
-    search?: string;     // Buscará en username, first_name o last_name
-    role_id?: number;    // Filtrar por un rol específico
-    is_active?: boolean; // Filtrar activos/inactivos
 }

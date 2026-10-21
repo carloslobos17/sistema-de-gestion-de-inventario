@@ -14,10 +14,12 @@ export interface Brand {
     is_active: boolean;
 }
 
-// Filtros del listado → GET /api/brands?search=&is_active=
+// Filtros del listado → GET /api/brands?search=&is_active=&page=&limit=
 export interface BrandFilters {
     search?: string;
     is_active?: boolean;
+    page?: number; // sin page el backend usa 1
+    limit?: number; // sin limit el backend usa 10
 }
 
 // POST /api/brands
@@ -71,6 +73,7 @@ export interface BrandTableProps {
     brands: Brand[];
     onBrandSaved: (brand: Brand) => void; // se editó una marca → actualizar la fila
     onBrandStatusChanged: (brand: Brand) => void; // se desactivó/reactivó → quitarla de la pestaña actual
+    canManage: boolean; // false → sin columna Acciones (ej. vendedores)
 }
 
 // H2 · Botón "+ Nueva marca" (va en el PageHeader)

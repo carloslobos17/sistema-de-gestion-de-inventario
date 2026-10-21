@@ -1,6 +1,8 @@
 // src/modules/brands/brand.repository.ts
 import { prisma } from '../../config/db';
-import type { Brand, BrandFilters, CreateBrandData, UpdateBrandData } from './brand.types';
+import { getSkip, toPaginationMeta } from '../../utils/pagination';
+import type { PaginatedResult, PaginationParams } from '../../types/pagination.types';
+import type { Brand, BrandFilters, BrandOption, CreateBrandData, UpdateBrandData } from './brand.types';
 
 // Tipo del "where" de Prisma para marcas, sacado de tu propio cliente
 type BrandWhere = NonNullable<NonNullable<Parameters<typeof prisma.brand.findMany>[0]>['where']>;
@@ -12,7 +14,8 @@ const BRAND_SELECT = {
 } as const;
 
 export class BrandRepository {
-    async findAll(filters: BrandFilters = {}): Promise<Brand[]> {
+    // Una página del listado + el total. Usa el índice (is_active, name).
+    async findPage(filters: BrandFilters, pagination: PaginationParams): Promise<PaginatedResult<Brand>> {
         const where: BrandWhere = {};
 
         if (filters.is_active !== undefined) {
@@ -23,9 +26,26 @@ export class BrandRepository {
             where.name = { contains: filters.search };
         }
 
+        // Las dos consultas en una transacción para que el total cuadre con los datos
+        const [data, total] = await prisma.$transaction([
+            prisma.brand.findMany({
+                where,
+                select: BRAND_SELECT,
+                orderBy: { name: 'asc' },
+                skip: getSkip(pagination),
+                take: pagination.limit
+            }),
+            prisma.brand.count({ where })
+        ]);
+
+        return { data, meta: toPaginationMeta(pagination, total) };
+    }
+
+    // Para los selects: solo activas, solo id y nombre, sin paginar ni contar
+    async findOptions(): Promise<BrandOption[]> {
         return prisma.brand.findMany({
-            where,
-            select: BRAND_SELECT,
+            where: { is_active: true },
+            select: { id: true, name: true },
             orderBy: { name: 'asc' }
         });
     }
