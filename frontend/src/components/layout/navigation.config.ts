@@ -27,7 +27,7 @@ export const NAV_GROUPS: NavGroup[] = [
             { label: "Unidades Mínimas", description: "Verifique productos agotados", to: "/inventory/low-stock", icon: AlertTriangle },
             { label: "Movimientos Internos", description: "Ingresos y egresos locales", to: "/inventory/movements", icon: ArrowRightLeft },
             { label: "Marcas", description: "Detalle de marcas de productos", to: "/inventory/brands", icon: List },
-            { label: "Categorías", description: "Clasifique su inventario", to: "/categories", icon: List },
+            { label: "Categorías", description: "Clasifique su inventario", to: "/inventory/categories", icon: List },
             { label: "Sub Categorías", description: "Sub clasifique su inventario", to: "/inventory/subcategories", icon: ListTree },
             { label: "Ubicaciones Físicas", description: "Organización física", to: "/inventory/locations", icon: MapPin },
         ],

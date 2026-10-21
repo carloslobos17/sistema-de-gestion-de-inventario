@@ -13,6 +13,8 @@ export function toBrandQueryParams(filters: BrandFilters): Record<string, string
 
     if (filters.search?.trim()) params.search = filters.search.trim();
     if (filters.is_active !== undefined) params.is_active = String(filters.is_active);
+    if (filters.page) params.page = String(filters.page);
+    if (filters.limit) params.limit = String(filters.limit);
 
     return params;
 }

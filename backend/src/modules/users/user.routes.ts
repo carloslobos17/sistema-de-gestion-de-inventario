@@ -1,3 +1,5 @@
+// src/modules/users/user.routes.ts
+// Todo el módulo es solo para administradores.
 import { Router } from 'express';
 import { UserController } from './user.controller';
 import { authenticateToken } from '../../middlewares/auth.middleware';
@@ -8,7 +10,7 @@ import { createUserSchema, updateUserSchema, userIdParamSchema } from './user.sc
 const router = Router();
 const userController = new UserController();
 
-// GET: /api/users?search=&role_id=&is_active=
+// GET: /api/users?search=&role_id=&is_active=&page=&limit=  (tabla, paginado)
 router.get('/', authenticateToken, requireAdmin, (req, res) => userController.list(req, res));
 
 // GET: /api/users/:id  (para precargar el formulario de edición)

@@ -1,3 +1,4 @@
+// src/modules/users/user.controller.ts
 import { Request, Response } from 'express';
 import { UserService } from './user.service';
 import { AppError } from '../../utils/AppError';
@@ -25,7 +26,7 @@ function handleError(res: Response, error: any, context: string): void {
 }
 
 export class UserController {
-    // GET /api/users?search=ana&role_id=2&is_active=true
+    // GET /api/users?search=ana&role_id=2&is_active=true&page=1&limit=10  →  { data, meta }
     async list(req: Request, res: Response): Promise<void> {
         // Se valida aquí y no con validateSchema porque en Express 5 req.query no se puede reemplazar
         const parsed = userFiltersSchema.safeParse(req.query);
@@ -41,9 +42,11 @@ export class UserController {
             return;
         }
 
+        const { page, limit, ...filters } = parsed.data;
+
         try {
-            const users = await userService.list(parsed.data);
-            res.status(200).json({ data: users });
+            const result = await userService.list(filters, { page, limit });
+            res.status(200).json(result);
         } catch (error) {
             handleError(res, error, 'list');
         }
@@ -61,6 +64,7 @@ export class UserController {
         }
     }
 
+    // POST /api/users
     async create(req: Request, res: Response): Promise<void> {
         try {
             const data = req.body as CreateUserInput;
@@ -72,6 +76,7 @@ export class UserController {
         }
     }
 
+    // PATCH /api/users/:id
     async update(req: Request, res: Response): Promise<void> {
         try {
             const id = Number(req.params.id);
@@ -84,6 +89,7 @@ export class UserController {
         }
     }
 
+    // DELETE /api/users/:id (borrado lógico)
     async remove(req: Request, res: Response): Promise<void> {
         try {
             const id = Number(req.params.id);

@@ -2,17 +2,17 @@
 // [H0 · BASE] Único archivo que habla con /api/brands. Ya está completo: los hooks solo lo llaman.
 import { apiClient } from '../../../api/axiosConfig';
 import { toApiError } from '../../../api/apiError';
-import type { ApiResponse } from '../../../api/api.types';
+import type { ApiResponse, PaginatedResponse } from '../../../api/api.types';
 import { toBrandQueryParams } from '../model/brands.mappers';
 import type { Brand, BrandFilters, CreateBrandPayload, UpdateBrandPayload } from '../model/brands.types';
 
-// GET /api/brands?search=&is_active=
-export async function fetchBrands(filters: BrandFilters = {}): Promise<Brand[]> {
+// GET /api/brands?search=&is_active=&page=&limit= → { data, meta }
+export async function fetchBrands(filters: BrandFilters = {}): Promise<PaginatedResponse<Brand>> {
     try {
-        const response = await apiClient.get<ApiResponse<Brand[]>>('/brands', {
+        const response = await apiClient.get<PaginatedResponse<Brand>>('/brands', {
             params: toBrandQueryParams(filters),
         });
-        return response.data.data;
+        return response.data;
     } catch (error) {
         throw toApiError(error, 'No se pudieron cargar las marcas');
     }

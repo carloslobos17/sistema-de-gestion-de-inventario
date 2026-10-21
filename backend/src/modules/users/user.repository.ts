@@ -1,5 +1,7 @@
 // src/modules/users/user.repository.ts
 import { prisma } from '../../config/db';
+import { getSkip, toPaginationMeta } from '../../utils/pagination';
+import type { PaginatedResult, PaginationParams } from '../../types/pagination.types';
 import type {
     UserWithCredentials,
     RefreshTokenData,
@@ -103,7 +105,8 @@ export class UserRepository {
         ]);
     }
 
-    async findAll(filters: UserFilters = {}): Promise<UserListed[]> {
+    // Una página del listado + el total. Usa el índice (is_active, created_at).
+    async findPage(filters: UserFilters, pagination: PaginationParams): Promise<PaginatedResult<UserListed>> {
         const where: UserWhere = {};
 
         // Activos / inactivos (si no se envía, trae todos)
@@ -130,13 +133,20 @@ export class UserRepository {
             }));
         }
 
-        const rows = await prisma.user.findMany({
-            where,
-            select: USER_WITH_ROLE_SELECT,
-            orderBy: { created_at: 'desc' }
-        });
+        // Las dos consultas en una transacción para que el total cuadre con los datos.
+        // El id desempata a los usuarios creados en el mismo instante (así no se repiten entre páginas).
+        const [rows, total] = await prisma.$transaction([
+            prisma.user.findMany({
+                where,
+                select: USER_WITH_ROLE_SELECT,
+                orderBy: [{ created_at: 'desc' }, { id: 'desc' }],
+                skip: getSkip(pagination),
+                take: pagination.limit
+            }),
+            prisma.user.count({ where })
+        ]);
 
-        return rows.map(flattenRole);
+        return { data: rows.map(flattenRole), meta: toPaginationMeta(pagination, total) };
     }
 
     // Guardar o actualizar el refresh token del usuario

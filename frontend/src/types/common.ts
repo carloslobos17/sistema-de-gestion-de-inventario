@@ -6,3 +6,23 @@
 // La página decide qué hacer: si ok → toast/cerrar/redirigir; si no → mostrar el error.
 // Para leer result.error usar: if (result.ok === false) { ... }
 export type ActionResult<T = void> = { ok: true; data: T } | { ok: false; error: string };
+
+// ==========================================
+// PAGINACIÓN
+// ==========================================
+
+// "meta" que devuelve el backend en los listados paginados
+export interface PaginationMeta {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+}
+
+// Props del paginador compartido (components/ui/Pagination.tsx)
+export interface PaginationProps {
+    meta: PaginationMeta;
+    onPageChange: (page: number) => void;
+    isLoading?: boolean; // deshabilita los botones mientras carga
+    itemLabel?: string; // "marcas", "usuarios"... → "Mostrando 1–10 de 37 marcas"
+}

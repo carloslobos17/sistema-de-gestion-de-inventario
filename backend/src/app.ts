@@ -4,6 +4,7 @@ import cors from 'cors';
 import authRoutes from './modules/auth/auth.routes';
 import userRoutes from './modules/users/user.routes';
 import brandRoutes from './modules/brands/brand.routes';
+import categoryRoutes from './modules/categories/category.routes';
 
 const app = express();
 
@@ -25,5 +26,6 @@ app.use('/api/auth', authRoutes); // login
 
 app.use('/api/users', userRoutes); // lista de usuarios (protegida por token)
 app.use('/api/brands', brandRoutes);
+app.use('/api/categories', categoryRoutes);
 
 export default app; // Exportamos la app configurada 

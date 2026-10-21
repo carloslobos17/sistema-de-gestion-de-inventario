@@ -11,8 +11,12 @@ import { brandIdParamSchema, createBrandSchema, updateBrandSchema } from './bran
 const router = Router();
 const brandController = new BrandController();
 
-// GET: /api/brands?search=&is_active=
+// GET: /api/brands?search=&is_active=&page=&limit=  (tabla, paginado)
 router.get('/', authenticateToken, (req, res) => brandController.list(req, res));
+
+// GET: /api/brands/options  (selects: solo activas, solo id y nombre)
+// Debe ir ANTES de '/:id', si no Express tomaría "options" como un id.
+router.get('/options', authenticateToken, (req, res) => brandController.options(req, res));
 
 // GET: /api/brands/:id
 router.get(

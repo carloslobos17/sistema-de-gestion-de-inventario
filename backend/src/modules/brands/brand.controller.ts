@@ -24,7 +24,7 @@ function handleError(res: Response, error: any, context: string): void {
 }
 
 export class BrandController {
-    // GET /api/brands?search=&is_active=
+    // GET /api/brands?search=&is_active=&page=&limit=  →  { data, meta }
     async list(req: Request, res: Response): Promise<void> {
         // Se valida aquí porque en Express 5 req.query no se puede reemplazar
         const parsed = brandFiltersSchema.safeParse(req.query);
@@ -40,11 +40,23 @@ export class BrandController {
             return;
         }
 
+        const { page, limit, ...filters } = parsed.data;
+
         try {
-            const brands = await brandService.list(parsed.data);
-            res.status(200).json({ data: brands });
+            const result = await brandService.list(filters, { page, limit });
+            res.status(200).json(result);
         } catch (error) {
             handleError(res, error, 'list');
+        }
+    }
+
+    // GET /api/brands/options  →  [{ id, name }] de las marcas activas (para selects)
+    async options(_req: Request, res: Response): Promise<void> {
+        try {
+            const options = await brandService.listOptions();
+            res.status(200).json({ data: options });
+        } catch (error) {
+            handleError(res, error, 'options');
         }
     }
 
