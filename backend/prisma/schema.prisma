@@ -115,6 +115,8 @@ model Brand {
   @@map("brands")
 }
 
+// Catálogo fijo del Ministerio de Hacienda (CAT-014 "Unidad de Medida" del DTE).
+// No tiene CRUD: los datos se cargan en la migración. El id ES el código oficial de Hacienda.
 model UnitOfMeasure {
   id   Int    @id // código de Hacienda (ej. 34 = Kilogramo, 59 = Unidad)
   name String @unique @db.VarChar(50)
@@ -122,9 +124,51 @@ model UnitOfMeasure {
   @@map("units_of_measure")
 }
 
+// ==========================================
+// CATÁLOGOS GEOGRÁFICOS DE HACIENDA (DTE)
+// ==========================================
+// Fijos: se cargan con prisma/seeds/locations.seed.ts y no tienen CRUD.
+// División territorial vigente: departamento → municipio → distrito.
+
+model Department {
+  code String @id @db.Char(2) // código de Hacienda (ej. "14" = La Unión)
+  name String @db.VarChar(50)
+
+  municipalities Municipality[]
+
+  @@map("departments")
+}
+
+model Municipality {
+  id              Int    @id @default(autoincrement())
+  department_code String @db.Char(2)
+  code            String @db.Char(2) // código de Hacienda; solo es único dentro de su departamento
+  name            String @db.VarChar(50)
+
+  department Department @relation(fields: [department_code], references: [code])
+  districts  District[]
+
+  @@unique([department_code, code])
+  @@map("municipalities")
+}
+
+model District {
+  id              Int    @id @default(autoincrement())
+  municipality_id Int
+  code            String @db.Char(2) // código de Hacienda; solo es único dentro de su municipio
+  name            String @db.VarChar(50)
+
+  municipality Municipality @relation(fields: [municipality_id], references: [id])
+
+  @@unique([municipality_id, code])
+  @@map("districts")
+}
+
 model Supplier {
   id           Int      @id @default(autoincrement())
   company_name String   @unique @db.VarChar(200)
+  nit          String   @unique @db.VarChar(14) // solo dígitos: 14 (NIT) o 9 (DUI homologado)
+  nrc          String?  @unique @db.VarChar(8) // solo dígitos (1 a 8); solo si está inscrito en IVA
   contact_name String?  @db.VarChar(150) // persona de contacto en la empresa (ej. el vendedor que los atiende)
   phone        String?  @unique @db.VarChar(50)
   email        String?  @unique @db.VarChar(150)
