@@ -78,7 +78,7 @@ model User {
   role          Role          @relation(fields: [role_id], references: [id])
   refresh_token RefreshToken?
 
-  @@index([is_active, created_at])
+  @@index([is_active, created_at]) // listado paginado: filtra por estado, ordena por fecha
   @@map("users")
 }
 
@@ -102,7 +102,7 @@ model Category {
   name      String  @unique @db.VarChar(100)
   is_active Boolean @default(true)
 
-  @@index([is_active, name])
+  @@index([is_active, name]) // listado paginado y /options: filtra por estado, ordena por nombre
   @@map("categories")
 }
 
@@ -111,14 +111,13 @@ model Brand {
   name      String  @unique @db.VarChar(100)
   is_active Boolean @default(true)
 
-  @@index([is_active, name])
+  @@index([is_active, name]) // listado paginado y /options: filtra por estado, ordena por nombre
   @@map("brands")
 }
 
 model UnitOfMeasure {
-  id        Int     @id @default(autoincrement())
-  name      String  @unique @db.VarChar(50)
-  is_active Boolean @default(true)
+  id   Int    @id // código de Hacienda (ej. 34 = Kilogramo, 59 = Unidad)
+  name String @unique @db.VarChar(50)
 
   @@map("units_of_measure")
 }
@@ -126,12 +125,14 @@ model UnitOfMeasure {
 model Supplier {
   id           Int      @id @default(autoincrement())
   company_name String   @unique @db.VarChar(200)
+  contact_name String?  @db.VarChar(150) // persona de contacto en la empresa (ej. el vendedor que los atiende)
   phone        String?  @unique @db.VarChar(50)
   email        String?  @unique @db.VarChar(150)
   address      String?  @db.VarChar(255)
   is_active    Boolean  @default(true)
   created_at   DateTime @default(now())
 
+  @@index([is_active, company_name]) // listado paginado y /options
   @@map("suppliers")
 }
 
@@ -143,8 +144,10 @@ model Customer {
   phone           String?  @unique @db.VarChar(50)
   email           String?  @unique @db.VarChar(150)
   address         String?  @db.VarChar(255)
+  credit_limit    Decimal  @default(0) @db.Decimal(12, 2) // 0 = sin crédito; cada cliente tiene el suyo
   is_active       Boolean  @default(true)
   created_at      DateTime @default(now())
 
+  @@index([is_active, last_name, first_name]) // listado paginado ordenado por apellido
   @@map("customers")
 }
