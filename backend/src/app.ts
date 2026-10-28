@@ -6,6 +6,7 @@ import userRoutes from './modules/users/user.routes';
 import brandRoutes from './modules/brands/brand.routes';
 import categoryRoutes from './modules/categories/category.routes';
 import unitRoutes from './modules/units/unit.routes';
+import locationRoutes from './modules/locations/location.routes';
 
 const app = express();
 
@@ -29,5 +30,6 @@ app.use('/api/users', userRoutes); // lista de usuarios (protegida por token)
 app.use('/api/brands', brandRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/units', unitRoutes);
+app.use('/api/locations', locationRoutes);
 
 export default app; // Exportamos la app configurada 

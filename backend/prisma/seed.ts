@@ -4,6 +4,7 @@
 // Todo usa upsert: se puede ejecutar varias veces sin duplicar nada.
 import { PrismaClient } from '@prisma/client';
 import { seedUnitsOfMeasure } from './seeds/unitsOfMeasure.seed';
+import { seedLocations } from './seeds/locations.seed';
 
 const prisma = new PrismaClient();
 
@@ -24,6 +25,7 @@ async function main(): Promise<void> {
 
     // Catálogos de Hacienda
     await seedUnitsOfMeasure(prisma);
+    await seedLocations(prisma);
 }
 
 main()
