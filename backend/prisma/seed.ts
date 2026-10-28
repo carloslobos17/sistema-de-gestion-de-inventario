@@ -1,58 +1,34 @@
+// prisma/seed.ts
+/// <reference types="node" />
+// Datos iniciales del sistema. Se corre con: npx prisma db seed
+// Todo usa upsert: se puede ejecutar varias veces sin duplicar nada.
 import { PrismaClient } from '@prisma/client';
-import * as bcrypt from 'bcrypt';
+import { seedUnitsOfMeasure } from './seeds/unitsOfMeasure.seed';
 
 const prisma = new PrismaClient();
 
-async function main() {
-    console.log('Iniciando el poblamiento de la base de datos (Seeding)...');
 
-    // 1. Crear Roles Básicos
-    const adminRole = await prisma.role.upsert({
+async function main(): Promise<void> {
+    // Roles base (id fijo: el backend usa roleId 1 = Administrador)
+    await prisma.role.upsert({
         where: { id: 1 },
         update: {},
-        create: {
-            id: 1,
-            name: 'Administrator',
-            can_manage_structure: true
-        },
+        create: { id: 1, name: 'Administrator', can_manage_structure: true }
     });
-
-    const sellerRole = await prisma.role.upsert({
+    await prisma.role.upsert({
         where: { id: 2 },
         update: {},
-        create: {
-            id: 2,
-            name: 'Seller',
-            can_manage_structure: false
-        },
+        create: { id: 2, name: 'Seller', can_manage_structure: false }
     });
+    console.log('✔ Roles: 2 registros');
 
-    console.log('Roles creados o verificados.');
-
-    // 2. Encriptar la contraseña por defecto
-    const passwordHash = await bcrypt.hash('admin123', 10);
-
-    // 3. Crear el Usuario Administrador Principal
-    const adminUser = await prisma.user.upsert({
-        where: { username: 'admin' },
-        update: {},
-        create: {
-            role_id: adminRole.id,
-            username: 'admin',
-            first_name: 'Carlos',
-            last_name: 'Martinez',
-            password_hash: passwordHash,
-            is_active: true
-        },
-    });
-
-    console.log(`Usuario administrador creado: ${adminUser.username}`);
-    console.log('¡Seed completado con éxito!');
+    // Catálogos de Hacienda
+    await seedUnitsOfMeasure(prisma);
 }
 
 main()
-    .catch((e) => {
-        console.error('Error ejecutando el seed:', e);
+    .catch((error) => {
+        console.error('✖ Error en el seed:', error);
         process.exit(1);
     })
     .finally(async () => {
