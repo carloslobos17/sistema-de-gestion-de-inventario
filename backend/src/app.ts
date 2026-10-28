@@ -7,6 +7,8 @@ import brandRoutes from './modules/brands/brand.routes';
 import categoryRoutes from './modules/categories/category.routes';
 import unitRoutes from './modules/units/unit.routes';
 import locationRoutes from './modules/locations/location.routes';
+import supplierRoutes from './modules/suppliers/supplier.routes';
+import economicActivityRoutes from './modules/economic-activities/economic-activity.routes';
 
 const app = express();
 
@@ -31,5 +33,7 @@ app.use('/api/brands', brandRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/units', unitRoutes);
 app.use('/api/locations', locationRoutes);
+app.use('/api/suppliers', supplierRoutes);
+app.use('/api/economic-activities', economicActivityRoutes);
 
 export default app; // Exportamos la app configurada 
