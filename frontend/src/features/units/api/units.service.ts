@@ -1,3 +1,5 @@
+// src/features/units/api/units.service.ts
+// Único archivo que habla con /api/units.
 import { apiClient } from '../../../api/axiosConfig';
 import { toApiError } from '../../../api/apiError';
 import type { ApiResponse } from '../../../api/api.types';

@@ -52,6 +52,21 @@ enum FinancialAccountType {
   CashRegister
 }
 
+// Tipo de documento de identificación (mismos valores que pide la factura electrónica)
+enum DocumentType {
+  NIT
+  DUI
+  PASSPORT
+  RESIDENT_CARD
+  OTHER
+}
+
+// Contribuyente: inscrito en IVA (tiene NRC). Sujeto excluido: informal, sin NRC.
+enum SupplierType {
+  Taxpayer
+  ExcludedSubject
+}
+
 // ==========================================
 // MÓDULO DE SEGURIDAD Y ACCESO
 // ==========================================
@@ -159,24 +174,46 @@ model District {
   name            String @db.VarChar(50)
 
   municipality Municipality @relation(fields: [municipality_id], references: [id])
+  suppliers    Supplier[]
 
   @@unique([municipality_id, code])
   @@map("districts")
 }
 
-model Supplier {
-  id           Int      @id @default(autoincrement())
-  company_name String   @unique @db.VarChar(200)
-  nit          String   @unique @db.VarChar(14) // solo dígitos: 14 (NIT) o 9 (DUI homologado)
-  nrc          String?  @unique @db.VarChar(8) // solo dígitos (1 a 8); solo si está inscrito en IVA
-  contact_name String?  @db.VarChar(150) // persona de contacto en la empresa (ej. el vendedor que los atiende)
-  phone        String?  @unique @db.VarChar(50)
-  email        String?  @unique @db.VarChar(150)
-  address      String?  @db.VarChar(255)
-  is_active    Boolean  @default(true)
-  created_at   DateTime @default(now())
+// Catálogo CAT-019 "Actividad Económica" de Hacienda. Fijo: se carga con prisma/seeds/economicActivities.seed.ts.
+model EconomicActivity {
+  code String @id @db.Char(5) // código de Hacienda (ej. "47522" = Venta al por menor de artículos de ferretería)
+  name String @db.VarChar(200)
 
-  @@index([is_active, company_name]) // listado paginado y /options
+  suppliers Supplier[]
+
+  @@map("economic_activities")
+}
+
+model Supplier {
+  id                     Int          @id @default(autoincrement())
+  supplier_type          SupplierType
+  name                   String       @unique @db.VarChar(200) // nombre o nombre comercial
+  legal_name             String?      @db.VarChar(200) // razón social (solo contribuyentes)
+  document_type          DocumentType
+  document_number        String       @db.VarChar(20) // NIT y DUI solo con dígitos; pasaporte/carné tal cual (mayúsculas)
+  nrc                    String?      @unique @db.VarChar(8) // solo contribuyentes, solo dígitos
+  economic_activity_code String?      @db.Char(5) // solo contribuyentes
+  district_id            Int
+  address                String       @db.VarChar(255)
+  phone                  String?      @db.VarChar(50) // obligatorio para sujetos excluidos
+  phone_alt              String?      @db.VarChar(50)
+  email                  String       @db.VarChar(150)
+  contact_name           String?      @db.VarChar(150) // persona de contacto (solo contribuyentes)
+  applies_perception     Boolean      @default(false) // nos cobra percepción de IVA (1 %) al vendernos
+  is_active              Boolean      @default(true)
+  created_at             DateTime     @default(now())
+
+  district          District          @relation(fields: [district_id], references: [id])
+  economic_activity EconomicActivity? @relation(fields: [economic_activity_code], references: [code])
+
+  @@unique([document_type, document_number])
+  @@index([is_active, name]) // listado paginado y /options
   @@map("suppliers")
 }
 

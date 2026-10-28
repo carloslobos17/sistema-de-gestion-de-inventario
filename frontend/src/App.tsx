@@ -9,6 +9,7 @@ import { NotFoundPage } from "./pages/NotFoundPage";
 import { usersRoutes } from "./features/users/users.routes";
 import { brandsRoutes } from "./features/brands/brands.routes";
 import { categoriesRoutes } from "./features/categories/categories.routes";
+import { suppliersRoutes } from "./features/suppliers/suppliers.routes";
 
 function App() {
     return (
@@ -31,6 +32,7 @@ function App() {
                         {usersRoutes}
                         {brandsRoutes}
                         {categoriesRoutes}
+                        {suppliersRoutes}
                         {/* {inventoryRoutes} */}
                         {/* {purchasesRoutes} */}
 
