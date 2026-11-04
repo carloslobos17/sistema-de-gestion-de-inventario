@@ -6,6 +6,7 @@ import { PrismaClient } from '@prisma/client';
 import { seedUnitsOfMeasure } from './seeds/unitsOfMeasure.seed';
 import { seedLocations } from './seeds/locations.seed';
 import { seedEconomicActivities } from './seeds/economicActivities.seed';
+import { seedPaymentMethods } from './seeds/paymentMethods.seed';
 
 const prisma = new PrismaClient();
 
@@ -27,6 +28,7 @@ async function main(): Promise<void> {
     await seedUnitsOfMeasure(prisma);
     await seedLocations(prisma);
     await seedEconomicActivities(prisma);
+    await seedPaymentMethods(prisma);
 }
 
 main()
