@@ -9,6 +9,7 @@ import unitRoutes from './modules/units/unit.routes';
 import locationRoutes from './modules/locations/location.routes';
 import supplierRoutes from './modules/suppliers/supplier.routes';
 import economicActivityRoutes from './modules/economic-activities/economic-activity.routes';
+import paymentMethodRoutes from './modules/payment-methods/paymentMethod.routes';
 
 const app = express();
 
@@ -35,5 +36,6 @@ app.use('/api/units', unitRoutes);
 app.use('/api/locations', locationRoutes);
 app.use('/api/suppliers', supplierRoutes);
 app.use('/api/economic-activities', economicActivityRoutes);
+app.use('/api/payment-methods', paymentMethodRoutes);
 
 export default app; // Exportamos la app configurada 
