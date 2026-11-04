@@ -9,7 +9,7 @@ import unitRoutes from './modules/units/unit.routes';
 import locationRoutes from './modules/locations/location.routes';
 import supplierRoutes from './modules/suppliers/supplier.routes';
 import economicActivityRoutes from './modules/economic-activities/economic-activity.routes';
-import paymentMethodRoutes from './modules/payment-methods/paymentMethod.routes';
+import paymentMethodRoutes from './modules/payment-methods/payment-method.routes';
 
 const app = express();
 

@@ -2,8 +2,12 @@
 import bcrypt from 'bcrypt';
 import { UserRepository } from '../users/user.repository';
 import { generateTokens } from '../../utils/jwt.util';
-import { LoginInput } from './auth.schema';
+import { AppError } from '../../utils/AppError';
+import type { LoginInput } from './auth.schema';
 import type { JwtPayload, LoginResult } from './auth.types';
+
+// Mismo mensaje si el usuario no existe o la contraseña está mal: así no se revela qué usuarios existen.
+const INVALID_CREDENTIALS = 'Credenciales inválidas';
 
 export class AuthService {
     private userRepository = new UserRepository();
@@ -12,13 +16,13 @@ export class AuthService {
         // 1. Buscar al usuario (solo activos)
         const user = await this.userRepository.findByUsername(data.username);
         if (!user) {
-            throw new Error('Credenciales inválidas');
+            throw new AppError(INVALID_CREDENTIALS, 401);
         }
 
         // 2. Verificar la contraseña
         const isPasswordValid = await bcrypt.compare(data.password, user.password_hash);
         if (!isPasswordValid) {
-            throw new Error('Credenciales inválidas');
+            throw new AppError(INVALID_CREDENTIALS, 401);
         }
 
         // 3. Generar los tokens

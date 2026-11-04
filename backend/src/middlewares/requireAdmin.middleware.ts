@@ -1,9 +1,9 @@
+// src/middlewares/requireAdmin.middleware.ts
 import { Request, Response, NextFunction } from 'express';
-
-const ADMIN_ROLE_ID = 1;
+import { ROLE_IDS } from '../constants/roles';
 
 export const requireAdmin = (req: Request, res: Response, next: NextFunction): void => {
-    if (req.user?.roleId !== ADMIN_ROLE_ID) {
+    if (req.user?.roleId !== ROLE_IDS.ADMIN) {
         res.status(403).json({ error: 'No tienes permisos para realizar esta acción.' });
         return;
     }

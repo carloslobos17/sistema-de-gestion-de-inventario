@@ -1,4 +1,4 @@
-// src/modules/payment-methods/paymentMethod.types.ts
+// src/modules/payment-methods/payment-method.types.ts
 // CAT-017 Forma de pago (Hacienda). El code es el que se envía como paymentCode al emitir la factura.
 
 export interface PaymentMethod {
