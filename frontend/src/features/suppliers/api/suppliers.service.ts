@@ -28,7 +28,7 @@ export async function fetchSupplierById(id: number): Promise<Supplier> {
     }
 }
 
-// POST /api/suppliers → 409 si el nombre, NIT, NRC, teléfono o correo ya existen; 403 sin permiso
+// POST /api/suppliers → 409 si el nombre, el documento (tipo + número) o el NRC ya existen; 403 sin permiso
 export async function createSupplier(payload: CreateSupplierPayload): Promise<Supplier> {
     try {
         const response = await apiClient.post<ApiResponse<Supplier>>('/suppliers', payload);

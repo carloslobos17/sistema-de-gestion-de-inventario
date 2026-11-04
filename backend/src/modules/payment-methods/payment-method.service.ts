@@ -1,6 +1,6 @@
-// src/modules/payment-methods/paymentMethod.service.ts
-import { PaymentMethodRepository } from './paymentMethod.repository';
-import type { PaymentMethod } from './paymentMethod.types';
+// src/modules/payment-methods/payment-method.service.ts
+import { PaymentMethodRepository } from './payment-method.repository';
+import type { PaymentMethod } from './payment-method.types';
 
 export class PaymentMethodService {
     private paymentMethodRepository = new PaymentMethodRepository();

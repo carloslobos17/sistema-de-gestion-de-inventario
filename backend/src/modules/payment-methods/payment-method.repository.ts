@@ -1,7 +1,7 @@
-// src/modules/payment-methods/paymentMethod.repository.ts
+// src/modules/payment-methods/payment-method.repository.ts
 // Solo lectura: el catálogo lo carga el seed.
 import { prisma } from '../../config/db';
-import type { PaymentMethod } from './paymentMethod.types';
+import type { PaymentMethod } from './payment-method.types';
 
 const PAYMENT_METHOD_SELECT = {
     code: true,

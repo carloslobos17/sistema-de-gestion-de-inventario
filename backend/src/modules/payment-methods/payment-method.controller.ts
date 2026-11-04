@@ -1,6 +1,6 @@
-// src/modules/payment-methods/paymentMethod.controller.ts
+// src/modules/payment-methods/payment-method.controller.ts
 import { Request, Response } from 'express';
-import { PaymentMethodService } from './paymentMethod.service';
+import { PaymentMethodService } from './payment-method.service';
 
 const paymentMethodService = new PaymentMethodService();
 
