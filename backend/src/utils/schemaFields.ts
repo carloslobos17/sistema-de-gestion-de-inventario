@@ -113,3 +113,18 @@ export const optionalEmailSchema = z
     .refine((value) => value === null || z.email().safeParse(value).success, {
         message: 'El correo no es válido'
     });
+
+// ==========================================
+// DINERO
+// ==========================================
+
+// Monto en dólares: no negativo y con máximo 2 decimales (límite de crédito, precios...).
+// El máximo por defecto es el de una columna Decimal(12, 2).
+export const moneySchema = (label: string, max = 9_999_999_999.99) =>
+    z
+        .number({ message: `${label} debe ser un número` })
+        .min(0, `${label} no puede ser negativo`)
+        .max(max, `${label} es demasiado alto`)
+        .refine((value) => Math.abs(value * 100 - Math.round(value * 100)) < 1e-6, {
+            message: `${label} solo puede tener 2 decimales`
+        });

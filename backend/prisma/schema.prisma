@@ -63,6 +63,18 @@ enum SupplierType {
   ExcludedSubject
 }
 
+// Consumidor final: se le emite Factura. Contribuyente: inscrito en IVA, se le puede emitir CCF.
+enum CustomerType {
+  FinalConsumer
+  Taxpayer
+}
+
+// Género del cliente (opcional, solo informativo: Hacienda no lo pide)
+enum Gender {
+  M
+  F
+}
+
 // ==========================================
 // MÓDULO DE SEGURIDAD Y ACCESO
 // ==========================================
@@ -171,6 +183,7 @@ model District {
 
   municipality Municipality @relation(fields: [municipality_id], references: [id])
   suppliers    Supplier[]
+  customers    Customer[]
 
   @@unique([municipality_id, code])
   @@map("districts")
@@ -182,6 +195,7 @@ model EconomicActivity {
   name String @db.VarChar(200)
 
   suppliers Supplier[]
+  customers Customer[]
 
   @@map("economic_activities")
 }
@@ -221,18 +235,32 @@ model Supplier {
   @@map("suppliers")
 }
 
+// Clientes. Reglas según el tipo:
+//   - Consumidor final: solo el nombre es obligatorio (documento, ubicación y correo opcionales).
+//   - Contribuyente: NIT o DUI, NRC, actividad económica, distrito, dirección y correo obligatorios.
 model Customer {
-  id              Int      @id @default(autoincrement())
-  first_name      String   @db.VarChar(100)
-  last_name       String   @db.VarChar(100)
-  document_number String?  @unique @db.VarChar(50)
-  phone           String?  @unique @db.VarChar(50)
-  email           String?  @unique @db.VarChar(150)
-  address         String?  @db.VarChar(255)
-  credit_limit    Decimal  @default(0) @db.Decimal(12, 2) // 0 = sin crédito; cada cliente tiene el suyo
-  is_active       Boolean  @default(true)
-  created_at      DateTime @default(now())
+  id                     Int           @id @default(autoincrement())
+  customer_type          CustomerType
+  name                   String        @db.VarChar(200) // nombre completo o razón social (NO único: puede haber dos "Juan Pérez")
+  trade_name             String?       @db.VarChar(200) // nombre comercial (solo contribuyentes)
+  gender                 Gender?
+  document_type          DocumentType?
+  document_number        String?       @db.VarChar(20) // NIT y DUI solo con dígitos; pasaporte/carné tal cual (mayúsculas)
+  nrc                    String?       @unique @db.VarChar(8) // solo contribuyentes, solo dígitos
+  economic_activity_code String?       @db.Char(5) // solo contribuyentes
+  district_id            Int? // obligatorio para contribuyentes
+  address                String?       @db.VarChar(255)
+  phone                  String?       @db.VarChar(50)
+  phone_alt              String?       @db.VarChar(50)
+  email                  String?       @db.VarChar(150) // obligatorio para contribuyentes (ahí llega el DTE)
+  credit_limit           Decimal       @default(0) @db.Decimal(12, 2) // 0 = sin crédito; solo lo cambia can_manage_structure
+  is_active              Boolean       @default(true)
+  created_at             DateTime      @default(now())
 
-  @@index([is_active, last_name, first_name]) // listado paginado ordenado por apellido
+  district          District?         @relation(fields: [district_id], references: [id])
+  economic_activity EconomicActivity? @relation(fields: [economic_activity_code], references: [code])
+
+  @@unique([document_type, document_number]) // MySQL permite varios NULL: los clientes sin documento no chocan
+  @@index([is_active, name]) // listado paginado ordenado por nombre
   @@map("customers")
 }
