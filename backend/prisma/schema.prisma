@@ -13,9 +13,10 @@ datasource db {
 // ==========================================
 // ENUMS GLOBALES
 // ==========================================
-enum PaymentType {
+enum OperationCondition {
   Cash
   Credit
+  Other
 }
 
 enum AccountStatus {
