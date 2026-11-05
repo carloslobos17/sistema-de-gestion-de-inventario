@@ -1,7 +1,10 @@
 ﻿import axios from 'axios';
 
+// Toma la IP o dominio actual del navegador y le apunta al puerto 3000
+const API_URL = `http://${window.location.hostname}:3000/api`;
+
 export const apiClient = axios.create({
-    baseURL: 'http://localhost:3000/api',
+    baseURL: API_URL,
     headers: {
         'Content-Type': 'application/json',
     },

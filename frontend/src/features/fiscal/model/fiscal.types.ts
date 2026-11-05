@@ -20,4 +20,6 @@ export interface DocumentFieldsProps {
     typeError?: string;
     numberError?: string;
     disabled?: boolean;
+    required?: boolean; // por defecto true. Clientes consumidor final: false (documento opcional)
+    emptyOptionLabel?: string; // texto de la opción vacía. Por defecto "Seleccione..." (ej. "Sin documento")
 }
