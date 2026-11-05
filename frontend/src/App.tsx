@@ -10,6 +10,7 @@ import { usersRoutes } from "./features/users/users.routes";
 import { brandsRoutes } from "./features/brands/brands.routes";
 import { categoriesRoutes } from "./features/categories/categories.routes";
 import { suppliersRoutes } from "./features/suppliers/suppliers.routes";
+import { customersRoutes } from "./features/customers/customers.routes";
 
 function App() {
     return (
@@ -33,6 +34,7 @@ function App() {
                         {brandsRoutes}
                         {categoriesRoutes}
                         {suppliersRoutes}
+                        {customersRoutes}
                         {/* {inventoryRoutes} */}
                         {/* {purchasesRoutes} */}
 

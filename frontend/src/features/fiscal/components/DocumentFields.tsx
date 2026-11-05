@@ -1,5 +1,6 @@
 // src/features/fiscal/components/DocumentFields.tsx
 // Tipo de documento + número, en dos columnas. Solo dibuja: el formulario guarda los valores.
+// required=false y emptyOptionLabel="Sin documento" → documento opcional (consumidor final).
 import { ErrorMessage } from "../../../components/ui/ErrorMessage";
 import { Input } from "../../../components/ui/Input";
 import { Label } from "../../../components/ui/Label";
@@ -17,6 +18,8 @@ export function DocumentFields({
     typeError,
     numberError,
     disabled = false,
+    required = true,
+    emptyOptionLabel = "Seleccione...",
 }: DocumentFieldsProps) {
     const typeId = `${idPrefix}-document_type`;
     const numberId = `${idPrefix}-document_number`;
@@ -24,12 +27,12 @@ export function DocumentFields({
     return (
         <>
             <div>
-                <Label htmlFor={typeId} required>
+                <Label htmlFor={typeId} required={required}>
                     Tipo de identificación
                 </Label>
                 <Select
                     id={typeId}
-                    placeholder="Seleccione..."
+                    placeholder={emptyOptionLabel}
                     value={documentType}
                     onChange={(e) => onDocumentTypeChange(e.target.value as DocumentType | "")}
                     disabled={disabled}
@@ -46,7 +49,7 @@ export function DocumentFields({
             </div>
 
             <div>
-                <Label htmlFor={numberId} required>
+                <Label htmlFor={numberId} required={required}>
                     Número de documento
                 </Label>
                 <Input
