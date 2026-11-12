@@ -1,26 +1,29 @@
 // src/features/customers/components/form/CustomerLocationSection.tsx
-// 👤 DUEÑO: Persona 2
 // Ubicación: departamento → municipio → distrito y dirección.
 //   - Consumidor final: OPCIONAL (insignia "Opcional", sin asteriscos).
 //   - Contribuyente: OBLIGATORIA (asterisco en los 3 selects y en la dirección).
-//
-// TODO (Persona 2):
-//   [ ] Descripción según el tipo:
-//         consumidor final → "Si eliges un departamento, completa también municipio y distrito."
-//         contribuyente    → "Departamento, municipio y distrito del domicilio fiscal."
-//   [ ] "Dirección exacta": <Label> + <Textarea name="address"> + <ErrorMessage>, maxLength CUSTOMER_LIMITS.ADDRESS_MAX.
-//       Placeholder: "Colonia, calle, número de casa, punto de referencia..."
-//   Referencia: sección "Ubicación" de SupplierForm.tsx
+import { ErrorMessage } from "../../../../components/ui/ErrorMessage";
+import { Label } from "../../../../components/ui/Label";
+import { Textarea } from "../../../../components/ui/Textarea";
 import { LocationSelect } from "../../../locations/components/LocationSelect";
+import { CUSTOMER_LIMITS } from "../../model/customers.constants";
 import type { CustomerFormSectionProps } from "../../model/customers.types";
 import { FormSection } from "./FormSection";
 
-export function CustomerLocationSection({ idPrefix, values, errors, setField, disabled }: CustomerFormSectionProps) {
+export function CustomerLocationSection({ idPrefix, values, errors, setField, handleChange, disabled }: CustomerFormSectionProps) {
     const isTaxpayer = values.customer_type === "Taxpayer";
+    const addressId = `${idPrefix}-address`;
 
     return (
-        <FormSection title="Ubicación" badge={isTaxpayer ? undefined : "Opcional"}>
-            {/* Ya funcionando: los 3 selects en cascada. Falta la dirección y la descripción. */}
+        <FormSection
+            title="Ubicación"
+            badge={isTaxpayer ? undefined : "Opcional"}
+            description={
+                isTaxpayer
+                    ? "Departamento, municipio y distrito del domicilio fiscal."
+                    : "Si eliges un departamento, completa también municipio y distrito."
+            }
+        >
             <LocationSelect
                 idPrefix={idPrefix}
                 value={values.location}
@@ -30,9 +33,24 @@ export function CustomerLocationSection({ idPrefix, values, errors, setField, di
                 required={isTaxpayer}
             />
 
-            <p className="rounded-md border border-dashed border-amber-300 bg-amber-50 p-3 text-xs text-amber-700 md:col-span-3">
-                TODO Persona 2: dirección exacta y descripción de la sección.
-            </p>
+            <div className="md:col-span-3">
+                <Label htmlFor={addressId} required={isTaxpayer}>
+                    Dirección exacta
+                </Label>
+                <Textarea
+                    id={addressId}
+                    name="address"
+                    rows={2}
+                    placeholder="Colonia, calle, número de casa, punto de referencia..."
+                    maxLength={CUSTOMER_LIMITS.ADDRESS_MAX}
+                    value={values.address}
+                    onChange={handleChange}
+                    disabled={disabled}
+                    hasError={Boolean(errors.address)}
+                    aria-describedby={errors.address ? `${addressId}-error` : undefined}
+                />
+                <ErrorMessage id={`${addressId}-error`} message={errors.address} />
+            </div>
         </FormSection>
     );
 }
