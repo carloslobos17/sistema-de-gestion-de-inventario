@@ -1,15 +1,10 @@
 // src/features/customers/hooks/useCustomerForm.ts
 // 👤 DUEÑO: Persona 1
 // Estado del formulario de cliente y su validación. Lo usa CustomerForm y se lo pasa a las secciones.
-// Ya funciona lo básico (escribir en los campos) para que la Persona 2 pueda probar sus secciones.
-//
-// TODO (Persona 1):
-//   [ ] changeCustomerType: si el documento elegido NO se permite en el nuevo tipo (ALLOWED_DOCUMENT_TYPES),
-//       limpiarlo (document_type: "", document_number: ""), y borrar todos los errores.
-//       Ej.: consumidor final con Pasaporte → pasa a contribuyente → el documento se limpia.
-//   Referencia: src/features/suppliers/hooks/useSupplierForm.ts
+// Al cambiar de tipo, el documento se limpia si el nuevo tipo no lo permite y se borran los errores.
+// Referencia: src/features/suppliers/hooks/useSupplierForm.ts
 import { useCallback, useState, type ChangeEvent } from 'react';
-import { EMPTY_CUSTOMER_FORM } from '../model/customers.constants';
+import { ALLOWED_DOCUMENT_TYPES, EMPTY_CUSTOMER_FORM } from '../model/customers.constants';
 import { validateCustomerForm } from '../model/customers.validator';
 import type { CustomerFormErrors, CustomerFormValues, CustomerType, UseCustomerFormResult } from '../model/customers.types';
 
@@ -31,9 +26,16 @@ export function useCustomerForm(initialValues: CustomerFormValues = EMPTY_CUSTOM
         [setField]
     );
 
-    // TODO (Persona 1): limpiar el documento si no se permite en el nuevo tipo
+    // Cambiar de tipo: si el documento elegido no se permite en el nuevo tipo, se limpia (tipo y número).
+    // Ej.: consumidor final con Pasaporte → contribuyente (solo NIT o DUI) → documento vacío.
     const changeCustomerType = useCallback((type: CustomerType) => {
-        setValues((prev) => ({ ...prev, customer_type: type }));
+        setValues((prev) => {
+            const isAllowed = !prev.document_type || ALLOWED_DOCUMENT_TYPES[type].includes(prev.document_type);
+            return isAllowed
+                ? { ...prev, customer_type: type }
+                : { ...prev, customer_type: type, document_type: '', document_number: '' };
+        });
+        // Los mensajes del tipo anterior ya no aplican
         setErrors({});
     }, []);
 

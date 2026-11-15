@@ -1,22 +1,29 @@
 // src/features/customers/hooks/useCreateCustomer.ts
 // 👤 DUEÑO: Persona 1
 // Crea un cliente. Devuelve ActionResult; NO muestra toasts ni navega (eso lo hace la página).
-//
-// TODO (Persona 1):
-//   [ ] isSaving con useState (true mientras se envía).
-//   [ ] Llamar a customersApi.createCustomer(toCreateCustomerPayload(values, canEditCreditLimit)).
-//   [ ] Éxito → { ok: true, data: cliente }. Error → { ok: false, error: getErrorMessage(err, "Error al crear el cliente") }
-//       (el 409 de documento/NRC repetido ya trae su mensaje del backend).
-//   Referencia: src/features/suppliers/hooks/useCreateSupplier.ts
-import { useCallback } from 'react';
+// El mapper ya omite credit_limit cuando el usuario no puede editarlo (vendedor), así no recibe un 403.
+// Referencia: src/features/suppliers/hooks/useCreateSupplier.ts
+import { useCallback, useState } from 'react';
+import * as customersApi from '../api/customers.service';
+import { toCreateCustomerPayload } from '../model/customers.mappers';
+import { getErrorMessage } from '../../../utils/getErrorMessage';
 import type { CustomerActionResult, CustomerFormValues } from '../model/customers.types';
 
 export function useCreateCustomer() {
-    const isSaving = false; // TODO: useState
+    const [isSaving, setIsSaving] = useState(false);
 
     const createCustomer = useCallback(
-        async (_values: CustomerFormValues, _canEditCreditLimit: boolean): Promise<CustomerActionResult> => {
-            return { ok: false, error: 'Pendiente: crear cliente (useCreateCustomer)' };
+        async (values: CustomerFormValues, canEditCreditLimit: boolean): Promise<CustomerActionResult> => {
+            setIsSaving(true);
+            try {
+                const created = await customersApi.createCustomer(toCreateCustomerPayload(values, canEditCreditLimit));
+                return { ok: true, data: created };
+            } catch (err) {
+                // 409 (documento o NRC repetido) y 403 (sin permiso) traen el mensaje del backend
+                return { ok: false, error: getErrorMessage(err, 'Error al crear el cliente') };
+            } finally {
+                setIsSaving(false);
+            }
         },
         []
     );
