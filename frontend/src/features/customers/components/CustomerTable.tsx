@@ -17,15 +17,15 @@ export function CustomerTable({ customers, canManage, onCustomerStatusChanged }:
         <div className="overflow-hidden rounded-lg border border-zinc-200 bg-white shadow-sm">
             <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm">
-                    <thead className="border-b border-slate-200 bg-slate-50 text-xs font-medium uppercase tracking-wide text-slate-500">
+                    <thead className="whitespace-nowrap border-b border-slate-200 bg-slate-50 text-xs font-medium uppercase tracking-wide text-slate-500">
                         <tr>
-                            <th scope="col" className="px-6 py-3">Cliente</th>
+                            <th scope="col" className="min-w-[11rem] px-4 py-3">Cliente</th>
                             <th scope="col" className="px-6 py-3">Tipo</th>
                             <th scope="col" className="px-6 py-3">Documento</th>
                             <th scope="col" className="px-6 py-3">NRC</th>
                             <th scope="col" className="px-6 py-3">Teléfono</th>
                             <th scope="col" className="px-6 py-3">Ubicación</th>
-                            <th scope="col" className="px-6 py-3 text-right">Límite de crédito</th>
+                            <th scope="col" className="px-6 py-3 text-right">Crédito</th>
                             <th scope="col" className="px-6 py-3">Estado</th>
                             <th scope="col" className="px-6 py-3 text-right">Acciones</th>
                         </tr>
@@ -67,7 +67,7 @@ export function CustomerTable({ customers, canManage, onCustomerStatusChanged }:
                                 <td className="whitespace-nowrap px-6 py-4 text-slate-700">{customer.phone || EMPTY}</td>
 
                                 {/* Ubicación (truncada; el texto completo aparece al pasar el mouse) */}
-                                <td className="max-w-[14rem] px-6 py-4 text-slate-500">
+                                <td className="max-w-[11rem] px-4 py-4 text-slate-500">
                                     {customer.location_label ? (
                                         <span className="block truncate" title={customer.location_label}>
                                             {customer.location_label}
@@ -95,7 +95,7 @@ export function CustomerTable({ customers, canManage, onCustomerStatusChanged }:
 
                                 {/* Acciones */}
                                 <td className="px-6 py-4">
-                                    <div className="flex justify-end gap-1">
+                                    <div className="-mr-2 flex justify-end gap-1">
                                         <Link
                                             to={`/customers/${customer.id}/edit`}
                                             className="rounded px-2 py-1 font-medium text-blue-600 transition-colors hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"

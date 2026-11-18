@@ -1,13 +1,7 @@
 // src/features/customers/components/form/CustomerForm.tsx
-// 👤 DUEÑO: Persona 1
 // Formulario compartido por CreateCustomerPage y EditCustomerPage. Arma las secciones, valida y envía.
-// Ya está conectado con todas las secciones: cada persona trabaja DENTRO de su sección sin tocar este archivo.
-//
-// TODO (Persona 1):
-//   [ ] Revisar que al enviar con errores se muestren TODOS los mensajes (validate() de useCustomerForm).
-//   [ ] Opcional: llevar el foco al primer campo con error al enviar.
-//   Referencia: src/features/suppliers/components/SupplierForm.tsx
-import { useId, type FormEvent } from "react";
+// Al enviar con errores se muestran TODOS los mensajes y el foco va al primer campo con error.
+import { useId, useRef, type FormEvent } from "react";
 import { UserPlus, Check } from "lucide-react";
 import { Button } from "../../../../components/ui/Button";
 import { useCustomerForm } from "../../hooks/useCustomerForm";
@@ -22,13 +16,20 @@ import type { CustomerFormProps, CustomerFormSectionProps } from "../../model/cu
 export function CustomerForm({ mode, initialValues, isSaving, canEditCreditLimit, onSubmit, onCancel }: CustomerFormProps) {
     const { values, errors, setField, handleChange, changeCustomerType, validate } = useCustomerForm(initialValues);
     const formId = useId();
+    const formRef = useRef<HTMLFormElement>(null);
     const isTaxpayer = values.customer_type === "Taxpayer";
 
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
         if (isSaving) return;
         // Si no pasa la validación, los errores se muestran y NO se llama al backend
-        if (!validate()) return;
+        if (!validate()) {
+            // Llevar el foco al primer campo marcado con error (Input, Select y Textarea usan aria-invalid)
+            requestAnimationFrame(() => {
+                formRef.current?.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus();
+            });
+            return;
+        }
         onSubmit(values);
     };
 
@@ -43,7 +44,7 @@ export function CustomerForm({ mode, initialValues, isSaving, canEditCreditLimit
     };
 
     return (
-        <form onSubmit={handleSubmit} noValidate className="flex flex-col">
+        <form ref={formRef} onSubmit={handleSubmit} noValidate className="flex flex-col">
             <div className="divide-y divide-zinc-100">
                 <CustomerTypeSection value={values.customer_type} onChange={changeCustomerType} disabled={isSaving} />
                 <CustomerGeneralSection {...sectionProps} />

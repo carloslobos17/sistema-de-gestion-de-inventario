@@ -21,3 +21,11 @@ export const DOCUMENT_NUMBER_PLACEHOLDERS: Record<DocumentType, string> = {
     RESIDENT_CARD: 'Número del carné',
     OTHER: 'Número del documento',
 };
+
+export const DOCUMENT_NUMBER_MAX_LENGTH: Record<DocumentType, number> = {
+    NIT: 17,          // 0614-123456-123-4
+    DUI: 10,          // 01234567-8
+    PASSPORT: 20,
+    RESIDENT_CARD: 20,
+    OTHER: 20,
+};

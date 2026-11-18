@@ -1,22 +1,39 @@
 // src/features/customers/hooks/useCustomerStatus.ts
-// 👤 DUEÑO: Persona 3
 // Desactiva (borrado lógico) o reactiva un cliente. Devuelve ActionResult; NO muestra toasts.
-//
-// TODO (Persona 3):
-//   [ ] Activo → customersApi.deactivateCustomer(id) · Inactivo → customersApi.updateCustomer(id, { is_active: true }).
-//   [ ] isSaving con useState.
-//   [ ] Error → { ok: false, error: getErrorMessage(err, "Error al desactivar/reactivar el cliente") }.
-//   Referencia: src/features/suppliers/hooks/useSupplierStatus.ts
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import type { ActionResult } from '../../../types/common';
 import type { Customer } from '../model/customers.types';
+import { deactivateCustomer, updateCustomer } from '../api/customers.service';
+import { getErrorMessage } from '../../../utils/getErrorMessage';
 
 export function useCustomerStatus() {
-    const isSaving = false; // TODO: useState
+    const [isSaving, setIsSaving] = useState(false);
 
-    const toggleCustomerStatus = useCallback(async (_customer: Customer): Promise<ActionResult<Customer | void>> => {
-        return { ok: false, error: 'Pendiente: desactivar/reactivar (useCustomerStatus)' };
-    }, []);
+    const toggleCustomerStatus = useCallback(
+        async (customer: Customer): Promise<ActionResult<Customer | void>> => {
+            setIsSaving(true);
+            try {
+                if (customer.is_active) {
+                    await deactivateCustomer(customer.id);
+                    return { ok: true, data: undefined };
+                } else {
+                    const updatedCustomer = await updateCustomer(customer.id, { is_active: true });
+                    return { ok: true, data: updatedCustomer };
+                }
+            } catch (err) {
+                const fallback = customer.is_active
+                    ? 'Error al desactivar el cliente'
+                    : 'Error al reactivar el cliente';
+                return {
+                    ok: false,
+                    error: getErrorMessage(err, fallback)
+                };
+            } finally {
+                setIsSaving(false);
+            }
+        },
+        []
+    );
 
     return { toggleCustomerStatus, isSaving };
 }
