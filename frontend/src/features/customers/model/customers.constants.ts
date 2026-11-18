@@ -65,6 +65,7 @@ export const CUSTOMER_LIMITS = {
     NAME_MIN: 2,
     NAME_MAX: 200,
     TRADE_NAME_MAX: 200,
+    NRC_MAX: 10,
     PHONE_MAX: 50,
     EMAIL_MAX: 150,
     ADDRESS_MAX: 255,

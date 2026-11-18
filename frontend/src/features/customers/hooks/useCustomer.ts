@@ -1,3 +1,5 @@
+// src/features/customers/hooks/useCustomer.ts
+// Carga un cliente por su ID para precargar el formulario de edición.
 import { useEffect, useState } from 'react';
 import { getErrorMessage } from '../../../utils/getErrorMessage';
 import * as customersApi from '../api/customers.service';

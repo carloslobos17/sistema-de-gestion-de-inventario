@@ -1,3 +1,5 @@
+// src/features/customers/hooks/useUpdateCustomer.ts
+// Edita un cliente enviando solo los campos que cambiaron. Si nada cambió, no llama al backend.
 import { useCallback, useState } from 'react';
 import { getErrorMessage } from '../../../utils/getErrorMessage';
 import * as customersApi from '../api/customers.service';

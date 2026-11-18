@@ -51,7 +51,10 @@ export function CustomerGeneralSection({ idPrefix, values, errors, setField, han
                 documentType={values.document_type}
                 documentNumber={values.document_number}
                 allowedTypes={ALLOWED_DOCUMENT_TYPES[values.customer_type]}
-                onDocumentTypeChange={(type) => setField("document_type", type)}
+                onDocumentTypeChange={(type) => {
+                    setField("document_type", type);
+                    if (type === "") setField("document_number", "");
+                }}
                 onDocumentNumberChange={(value) => setField("document_number", value)}
                 typeError={errors.document_type}
                 numberError={errors.document_number}

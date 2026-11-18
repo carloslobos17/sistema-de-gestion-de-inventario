@@ -1,6 +1,5 @@
 // src/features/customers/model/customers.types.ts
 // Contrato del módulo de clientes: datos del backend, formulario y props de TODOS los componentes.
-// ⚠️ Archivo compartido por el equipo: si necesitas cambiar algo aquí, avisa antes (lo usan las 3 personas).
 import type { ChangeEvent } from 'react';
 import type { ActionResult } from '../../../types/common';
 import type { DocumentType } from '../../fiscal/model/fiscal.types';

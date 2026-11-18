@@ -1,15 +1,22 @@
+// src/features/customers/components/form/CustomerCreditSection.tsx
+// Límite de crédito: campo editable con "$" para el administrador; tarjeta de solo lectura para el vendedor.
 import { Lock } from "lucide-react";
 import { ErrorMessage } from "../../../../components/ui/ErrorMessage";
+import { Label } from "../../../../components/ui/Label";
 import { formatCurrency } from "../../../../utils/formatCurrency";
 import type { CustomerCreditSectionProps } from "../../model/customers.types";
 import { FormSection } from "./FormSection";
 
 export function CustomerCreditSection({
+    idPrefix,
     value,
     onChange,
     error,
     canEdit,
+    disabled,
 }: CustomerCreditSectionProps) {
+    const creditLimitId = `${idPrefix}-credit_limit`;
+    const creditLimitErrorId = `${creditLimitId}-error`;
     const numericValue = Number(value);
     const hasCredit = Number.isFinite(numericValue) && numericValue > 0;
     const displayAmount = hasCredit ? formatCurrency(numericValue) : "Sin crédito";
@@ -21,12 +28,7 @@ export function CustomerCreditSection({
         >
             {canEdit ? (
                 <div className="md:col-span-1">
-                    <label
-                        htmlFor="credit_limit"
-                        className="mb-1.5 block text-sm font-medium text-zinc-700"
-                    >
-                        Límite de crédito
-                    </label>
+                    <Label htmlFor={creditLimitId}>Límite de crédito</Label>
 
                     <div
                         className={`flex overflow-hidden rounded-lg border bg-white shadow-xs transition-colors focus-within:ring-2 ${
@@ -39,18 +41,21 @@ export function CustomerCreditSection({
                             $
                         </span>
                         <input
-                            id="credit_limit"
+                            id={creditLimitId}
                             name="credit_limit"
                             type="text"
                             inputMode="decimal"
                             value={value}
                             onChange={(e) => onChange(e.target.value)}
+                            disabled={disabled}
+                            aria-invalid={Boolean(error) || undefined}
+                            aria-describedby={error ? creditLimitErrorId : undefined}
                             placeholder="0.00"
-                            className="w-full min-w-0 border-0 bg-transparent px-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none"
+                            className="w-full min-w-0 border-0 bg-transparent px-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-500"
                         />
                     </div>
 
-                    <ErrorMessage message={error} />
+                    <ErrorMessage id={creditLimitErrorId} message={error} />
 
                     <p className="mt-2 flex items-center gap-1.5 whitespace-nowrap text-xs text-zinc-500">
                         <Lock className="h-3.5 w-3.5 shrink-0 text-zinc-400" />
