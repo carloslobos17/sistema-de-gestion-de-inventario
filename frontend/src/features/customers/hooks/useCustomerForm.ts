@@ -1,8 +1,6 @@
 // src/features/customers/hooks/useCustomerForm.ts
-// 👤 DUEÑO: Persona 1
 // Estado del formulario de cliente y su validación. Lo usa CustomerForm y se lo pasa a las secciones.
 // Al cambiar de tipo, el documento se limpia si el nuevo tipo no lo permite y se borran los errores.
-// Referencia: src/features/suppliers/hooks/useSupplierForm.ts
 import { useCallback, useState, type ChangeEvent } from 'react';
 import { ALLOWED_DOCUMENT_TYPES, EMPTY_CUSTOMER_FORM } from '../model/customers.constants';
 import { validateCustomerForm } from '../model/customers.validator';

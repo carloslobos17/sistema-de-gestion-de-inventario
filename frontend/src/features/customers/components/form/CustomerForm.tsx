@@ -1,9 +1,6 @@
 // src/features/customers/components/form/CustomerForm.tsx
-// 👤 DUEÑO: Persona 1
 // Formulario compartido por CreateCustomerPage y EditCustomerPage. Arma las secciones, valida y envía.
-// Ya está conectado con todas las secciones: cada persona trabaja DENTRO de su sección sin tocar este archivo.
 // Al enviar con errores se muestran TODOS los mensajes y el foco va al primer campo con error.
-// Referencia: src/features/suppliers/components/SupplierForm.tsx
 import { useId, useRef, type FormEvent } from "react";
 import { UserPlus, Check } from "lucide-react";
 import { Button } from "../../../../components/ui/Button";

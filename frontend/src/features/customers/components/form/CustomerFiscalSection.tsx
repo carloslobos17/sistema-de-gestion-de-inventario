@@ -4,6 +4,7 @@ import { ErrorMessage } from "../../../../components/ui/ErrorMessage";
 import { FormField } from "../../../../components/ui/FormField";
 import { Label } from "../../../../components/ui/Label";
 import { EconomicActivitySelect } from "../../../economic-activities/components/EconomicActivitySelect";
+import { CUSTOMER_LIMITS } from "../../model/customers.constants";
 import type { CustomerFormSectionProps } from "../../model/customers.types";
 import { FormSection } from "./FormSection";
 
@@ -20,7 +21,7 @@ export function CustomerFiscalSection({ idPrefix, values, errors, setField, hand
                 inputMode="numeric"
                 autoComplete="off"
                 placeholder="123456-7"
-                maxLength={10}
+                maxLength={CUSTOMER_LIMITS.NRC_MAX}
                 value={values.nrc}
                 onChange={handleChange}
                 disabled={disabled}

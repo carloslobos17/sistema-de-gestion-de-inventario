@@ -1,11 +1,9 @@
 // src/features/customers/model/customers.validator.ts
-// 👤 DUEÑO: Persona 1
 // Reglas del formulario de cliente. Iguales a las del backend (backend/src/modules/customers/customer.schema.ts):
 //   - Ambos tipos: nombre obligatorio; teléfonos, correo y límite de crédito con formato válido.
 //   - Consumidor final: documento y ubicación opcionales, pero "todo o nada".
 //   - Contribuyente: NIT o DUI, NRC, actividad económica, ubicación completa, dirección y correo obligatorios.
 // Devuelve TODOS los errores a la vez: { campo: "mensaje" }. Objeto vacío = formulario válido.
-// Referencia: src/features/suppliers/model/suppliers.validator.ts (mismo estilo: Zod + reglas por tipo)
 import { z } from 'zod';
 import { getDocumentNumberError, isValidNrc } from '../../fiscal/model/fiscal.utils';
 import { ALLOWED_DOCUMENT_TYPES, CUSTOMER_LIMITS } from './customers.constants';

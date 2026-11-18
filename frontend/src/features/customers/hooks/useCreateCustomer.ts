@@ -1,8 +1,6 @@
 // src/features/customers/hooks/useCreateCustomer.ts
-// 👤 DUEÑO: Persona 1
 // Crea un cliente. Devuelve ActionResult; NO muestra toasts ni navega (eso lo hace la página).
 // El mapper ya omite credit_limit cuando el usuario no puede editarlo (vendedor), así no recibe un 403.
-// Referencia: src/features/suppliers/hooks/useCreateSupplier.ts
 import { useCallback, useState } from 'react';
 import * as customersApi from '../api/customers.service';
 import { toCreateCustomerPayload } from '../model/customers.mappers';

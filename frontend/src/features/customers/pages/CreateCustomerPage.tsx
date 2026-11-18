@@ -1,8 +1,6 @@
 // src/features/customers/pages/CreateCustomerPage.tsx
-// 👤 DUEÑO: Persona 1
 // Página /customers/create. Para CUALQUIER usuario con sesión; el límite de crédito solo lo edita el admin.
 // Error → toast rojo y el formulario conserva lo escrito. Éxito → toast verde y vuelve a /customers.
-// Referencia: src/features/suppliers/pages/CreateSupplierPage.tsx
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { PageHeader } from "../../../components/layout/PageHeader";
@@ -37,7 +35,6 @@ export function CreateCustomerPage() {
 
             <PageHeader title="Nuevo cliente" description="Registra los datos del cliente. Solo el nombre es obligatorio para un consumidor final." />
 
-            {/* Sin overflow-hidden: si no, el pie fijo (sticky) del formulario no funciona */}
             <div className="rounded-xl border border-zinc-200 bg-white shadow-sm">
                 <CustomerForm
                     mode="create"
