@@ -1,37 +1,28 @@
 // src/features/customers/components/form/CustomerGeneralSection.tsx
-// 👤 DUEÑO: Persona 2
 // Datos generales: nombre / razón social, nombre comercial, documento y género.
-//
-// TODO (Persona 2):
-//   [ ] Etiqueta del nombre según el tipo: "Nombre completo" (consumidor final) / "Razón social" (contribuyente).
-//       Placeholder: "Ej. Carlos Ernesto Benítez Morales" / "Ej. Ferretería El Sol, S.A. de C.V."
-//   [ ] "Nombre comercial" (trade_name): SOLO contribuyente, opcional.
-//   [ ] <DocumentFields> (src/features/fiscal/components/DocumentFields.tsx) con:
-//         allowedTypes={ALLOWED_DOCUMENT_TYPES[values.customer_type]}
-//         consumidor final → required={false} emptyOptionLabel="Sin documento"
-//         contribuyente    → required (por defecto) → solo NIT y DUI
-//   [ ] "Género": <Select> opcional con placeholder "Sin especificar" y GENDER_OPTIONS.
-//   [ ] Sin "(opcional)" en las etiquetas: solo los obligatorios llevan asterisco.
-//   [ ] Límites de largo: CUSTOMER_LIMITS (maxLength).
-//   [ ] Distribución sugerida (3 columnas): Nombre (2 col) + Género · Nombre comercial (2 col) · Tipo doc + Número.
-//   Referencia: sección "Datos generales" de SupplierForm.tsx
+import { ErrorMessage } from "../../../../components/ui/ErrorMessage";
 import { FormField } from "../../../../components/ui/FormField";
-import { CUSTOMER_LIMITS } from "../../model/customers.constants";
+import { Label } from "../../../../components/ui/Label";
+import { Select } from "../../../../components/ui/Select";
+import { DocumentFields } from "../../../fiscal/components/DocumentFields";
+import { ALLOWED_DOCUMENT_TYPES, CUSTOMER_LIMITS, GENDER_OPTIONS } from "../../model/customers.constants";
 import type { CustomerFormSectionProps } from "../../model/customers.types";
 import { FormSection } from "./FormSection";
 
-export function CustomerGeneralSection({ values, errors, handleChange, disabled }: CustomerFormSectionProps) {
+export function CustomerGeneralSection({ idPrefix, values, errors, setField, handleChange, disabled }: CustomerFormSectionProps) {
     const isTaxpayer = values.customer_type === "Taxpayer";
+    const genderId = `${idPrefix}-gender`;
 
     return (
         <FormSection title="Datos generales" description="Identificación del cliente.">
-            {/* Ejemplo ya funcionando: el nombre. Completar el resto de campos. */}
-            <div className="md:col-span-2">
+            <div className={isTaxpayer ? "md:col-span-2" : "md:col-span-3"}>
                 <FormField
                     label={isTaxpayer ? "Razón social" : "Nombre completo"}
                     name="name"
                     required
                     autoFocus
+                    autoComplete={isTaxpayer ? "organization" : "name"}
+                    placeholder={isTaxpayer ? "Ej. Ferretería El Sol, S.A. de C.V." : "Ej. Carlos Ernesto Benítez Morales"}
                     maxLength={CUSTOMER_LIMITS.NAME_MAX}
                     value={values.name}
                     onChange={handleChange}
@@ -40,9 +31,56 @@ export function CustomerGeneralSection({ values, errors, handleChange, disabled 
                 />
             </div>
 
-            <p className="rounded-md border border-dashed border-amber-300 bg-amber-50 p-3 text-xs text-amber-700 md:col-span-3">
-                TODO Persona 2: nombre comercial, documento y género.
-            </p>
+            {/* Nombre comercial: solo contribuyente (1 columna, junto a la razón social) */}
+            {isTaxpayer && (
+                <FormField
+                    label="Nombre comercial"
+                    name="trade_name"
+                    placeholder="Ej. Ferretería El Sol"
+                    maxLength={CUSTOMER_LIMITS.TRADE_NAME_MAX}
+                    value={values.trade_name}
+                    onChange={handleChange}
+                    disabled={disabled}
+                    error={errors.trade_name}
+                />
+            )}
+
+            {/* Documento: obligatorio (NIT o DUI) en contribuyente; opcional en consumidor final */}
+            <DocumentFields
+                idPrefix={idPrefix}
+                documentType={values.document_type}
+                documentNumber={values.document_number}
+                allowedTypes={ALLOWED_DOCUMENT_TYPES[values.customer_type]}
+                onDocumentTypeChange={(type) => setField("document_type", type)}
+                onDocumentNumberChange={(value) => setField("document_number", value)}
+                typeError={errors.document_type}
+                numberError={errors.document_number}
+                disabled={disabled}
+                required={isTaxpayer}
+                emptyOptionLabel={isTaxpayer ? "Seleccione..." : "Sin documento"}
+            />
+
+            {/* Género (opcional, informativo) */}
+            <div>
+                <Label htmlFor={genderId}>Género</Label>
+                <Select
+                    id={genderId}
+                    name="gender"
+                    placeholder="Sin especificar"
+                    value={values.gender}
+                    onChange={handleChange}
+                    disabled={disabled}
+                    hasError={Boolean(errors.gender)}
+                    aria-describedby={errors.gender ? `${genderId}-error` : undefined}
+                >
+                    {GENDER_OPTIONS.map((option) => (
+                        <option key={option.value} value={option.value}>
+                            {option.label}
+                        </option>
+                    ))}
+                </Select>
+                <ErrorMessage id={`${genderId}-error`} message={errors.gender} />
+            </div>
         </FormSection>
     );
 }

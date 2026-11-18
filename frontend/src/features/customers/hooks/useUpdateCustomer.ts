@@ -1,22 +1,37 @@
-// src/features/customers/hooks/useUpdateCustomer.ts
-// 👤 DUEÑO: Persona 3
-// Edita un cliente enviando SOLO lo que cambió. Si nada cambió, no llama al backend.
-//
-// TODO (Persona 3):
-//   [ ] payload = toUpdateCustomerPayload(values, original, canEditCreditLimit) (ya existe en customers.mappers.ts).
-//   [ ] Si el payload está vacío → { ok: true, data: original } sin llamar al backend.
-//   [ ] Si no → customersApi.updateCustomer(original.id, payload), con isSaving.
-//   [ ] Error → { ok: false, error: getErrorMessage(err, "Error al actualizar el cliente") }.
-//   Referencia: src/features/suppliers/hooks/useUpdateSupplier.ts
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
+import { getErrorMessage } from '../../../utils/getErrorMessage';
+import * as customersApi from '../api/customers.service';
+import { toUpdateCustomerPayload } from '../model/customers.mappers';
 import type { Customer, CustomerActionResult, CustomerFormValues } from '../model/customers.types';
 
 export function useUpdateCustomer() {
-    const isSaving = false; // TODO: useState
+    const [isSaving, setIsSaving] = useState(false);
 
     const updateCustomer = useCallback(
-        async (_original: Customer, _values: CustomerFormValues, _canEditCreditLimit: boolean): Promise<CustomerActionResult> => {
-            return { ok: false, error: 'Pendiente: editar cliente (useUpdateCustomer)' };
+        async (
+            original: Customer,
+            values: CustomerFormValues,
+            canEditCreditLimit: boolean
+        ): Promise<CustomerActionResult> => {
+            const payload = toUpdateCustomerPayload(values, original, canEditCreditLimit);
+            const hasChanges = Object.values(payload).some((value) => value !== undefined);
+
+            if (!hasChanges) {
+                return { ok: true, data: original };
+            }
+
+            setIsSaving(true);
+            try {
+                const updated = await customersApi.updateCustomer(original.id, payload);
+                return { ok: true, data: updated };
+            } catch (err) {
+                return {
+                    ok: false,
+                    error: getErrorMessage(err, 'Error al actualizar el cliente'),
+                };
+            } finally {
+                setIsSaving(false);
+            }
         },
         []
     );

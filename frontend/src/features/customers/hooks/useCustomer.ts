@@ -1,18 +1,52 @@
-// src/features/customers/hooks/useCustomer.ts
-// 👤 DUEÑO: Persona 3
-// Carga un solo cliente por ID (para precargar el formulario de edición).
-//
-// TODO (Persona 3):
-//   [ ] Validar el id (entero > 0); si no → error "El ID del cliente no es válido."
-//   [ ] customersApi.fetchCustomerById(id) en un useEffect, con bandera "cancelled" para ignorar respuestas viejas.
-//   [ ] Devolver { customer, isLoading, error } (404 → "Cliente no encontrado" viene del backend).
-//   Referencia: src/features/suppliers/hooks/useSupplier.ts
+import { useEffect, useState } from 'react';
+import { getErrorMessage } from '../../../utils/getErrorMessage';
+import * as customersApi from '../api/customers.service';
 import type { Customer } from '../model/customers.types';
 
 export function useCustomer(id: number) {
-    const customer: Customer | null = null;
-    const isLoading = false;
-    const error: string | null = `Pendiente: cargar el cliente ${id} (useCustomer)`;
+    const isValidId = Number.isInteger(id) && id > 0;
+
+    const [customer, setCustomer] = useState<Customer | null>(null);
+    const [isLoading, setIsLoading] = useState<boolean>(isValidId);
+    const [error, setError] = useState<string | null>(
+        isValidId ? null : 'El ID del cliente no es válido.'
+    );
+
+    useEffect(() => {
+        if (!isValidId) {
+            setCustomer(null);
+            setIsLoading(false);
+            setError('El ID del cliente no es válido.');
+            return;
+        }
+
+        let cancelled = false;
+        setIsLoading(true);
+        setError(null);
+
+        customersApi
+            .fetchCustomerById(id)
+            .then((data) => {
+                if (!cancelled) {
+                    setCustomer(data);
+                }
+            })
+            .catch((err) => {
+                if (!cancelled) {
+                    setCustomer(null);
+                    setError(getErrorMessage(err, 'No se pudo cargar el cliente'));
+                }
+            })
+            .finally(() => {
+                if (!cancelled) {
+                    setIsLoading(false);
+                }
+            });
+
+        return () => {
+            cancelled = true;
+        };
+    }, [id, isValidId]);
 
     return { customer, isLoading, error };
 }
