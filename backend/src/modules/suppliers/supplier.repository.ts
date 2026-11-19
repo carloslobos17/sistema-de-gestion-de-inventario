@@ -1,11 +1,41 @@
 // src/modules/suppliers/supplier.repository.ts
+import { Prisma } from '@prisma/client';
 import { prisma } from '../../config/db';
-import { getSkip, toPaginationMeta } from '../../utils/pagination';
+import { toPaginationMeta } from '../../utils/pagination';
+import { findPageIds, sortByIds } from '../../utils/listQuery';
+import { escapeLike, parseSearchTerm } from '../../utils/search';
 import type { PaginatedResult, PaginationParams } from '../../types/pagination.types';
 import type { Supplier, SupplierData, SupplierFilters, SupplierOption, UpdateSupplierData } from './supplier.types';
 
-// Tipo del "where" de Prisma para proveedores, sacado de tu propio cliente
-type SupplierWhere = NonNullable<NonNullable<Parameters<typeof prisma.supplier.findMany>[0]>['where']>;
+// Condiciones SQL del listado. Cada búsqueda usa su propio índice (ver utils/search.ts).
+// Por defecto lista solo activos: así el orden por nombre usa el índice (is_active, name).
+function buildListConditions(filters: SupplierFilters): Prisma.Sql[] {
+    const conditions: Prisma.Sql[] = [Prisma.sql`is_active = ${filters.is_active ?? true}`];
+
+    if (filters.supplier_type) {
+        conditions.push(Prisma.sql`supplier_type = ${filters.supplier_type}`);
+    }
+
+    if (filters.search) {
+        const term = parseSearchTerm(filters.search);
+
+        if (term.kind === 'digits') {
+            // NIT, DUI o NRC que EMPIEZA con esos dígitos
+            const prefix = `${term.digits}%`;
+            conditions.push(Prisma.sql`(document_number LIKE ${prefix} OR nrc LIKE ${prefix})`);
+        } else if (term.kind === 'email') {
+            conditions.push(Prisma.sql`email LIKE ${`${escapeLike(term.text)}%`}`);
+        } else if (term.fullText) {
+            // Nombre, razón social o contacto, por palabras (índice FULLTEXT)
+            conditions.push(Prisma.sql`MATCH(name, legal_name, contact_name) AGAINST (${term.fullText} IN BOOLEAN MODE)`);
+        } else {
+            // Texto muy corto: nombre que empieza con eso
+            conditions.push(Prisma.sql`name LIKE ${`${escapeLike(term.prefix)}%`}`);
+        }
+    }
+
+    return conditions;
+}
 
 // Campos del proveedor + su ubicación y actividad (para mostrarlos sin otra consulta)
 const SUPPLIER_SELECT = {
@@ -59,43 +89,16 @@ function toSupplier(row: SupplierRow): Supplier {
 }
 
 export class SupplierRepository {
-    // Una página del listado + el total. Usa el índice (is_active, name).
+    // Una página del listado + el total. Paso 1: ids y total con índices; paso 2: datos de esos ids.
     async findPage(filters: SupplierFilters, pagination: PaginationParams): Promise<PaginatedResult<Supplier>> {
-        const where: SupplierWhere = {};
+        const { ids, total } = await findPageIds('suppliers', buildListConditions(filters), pagination);
 
-        if (filters.is_active !== undefined) {
-            where.is_active = filters.is_active;
-        }
+        const rows =
+            ids.length > 0
+                ? await prisma.supplier.findMany({ where: { id: { in: ids } }, select: SUPPLIER_SELECT })
+                : [];
 
-        if (filters.supplier_type) {
-            where.supplier_type = filters.supplier_type;
-        }
-
-        // Busca por nombre, razón social o contacto; si el texto trae números, también por documento y NRC
-        if (filters.search) {
-            const digits = filters.search.replace(/\D/g, '');
-            where.OR = [
-                { name: { contains: filters.search } },
-                { legal_name: { contains: filters.search } },
-                { contact_name: { contains: filters.search } },
-                { document_number: { contains: filters.search.replace(/\s+/g, '') } },
-                ...(digits ? [{ document_number: { contains: digits } }, { nrc: { contains: digits } }] : [])
-            ];
-        }
-
-        // Las dos consultas en una transacción para que el total cuadre con los datos
-        const [rows, total] = await prisma.$transaction([
-            prisma.supplier.findMany({
-                where,
-                select: SUPPLIER_SELECT,
-                orderBy: { name: 'asc' },
-                skip: getSkip(pagination),
-                take: pagination.limit
-            }),
-            prisma.supplier.count({ where })
-        ]);
-
-        return { data: rows.map(toSupplier), meta: toPaginationMeta(pagination, total) };
+        return { data: sortByIds(rows, ids).map(toSupplier), meta: toPaginationMeta(pagination, total) };
     }
 
     // Para los selects (ej. registrar una compra): solo activos, solo id y nombre

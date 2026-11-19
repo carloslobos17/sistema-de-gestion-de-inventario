@@ -244,6 +244,9 @@ model Supplier {
 
   @@unique([document_type, document_number])
   @@index([is_active, name]) // listado paginado y /options
+  @@index([document_number]) // búsqueda por documento: "empieza con"
+  @@index([email]) // búsqueda por correo
+  @@fulltext([name, legal_name, contact_name]) // búsqueda por nombre, razón social o contacto
   @@map("suppliers")
 }
 
@@ -274,5 +277,9 @@ model Customer {
 
   @@unique([document_type, document_number]) // MySQL permite varios NULL: los clientes sin documento no chocan
   @@index([is_active, name]) // listado paginado ordenado por nombre
+  @@index([document_number]) // búsqueda por documento: "empieza con"
+  @@index([phone]) // búsqueda por teléfono
+  @@index([email]) // búsqueda por correo
+  @@fulltext([name, trade_name]) // búsqueda por nombre (por palabras)
   @@map("customers")
 }
