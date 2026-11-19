@@ -9,7 +9,9 @@
     "start": "node dist/index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "postinstall": "prisma skills sync || exit 0",
-    "studio": "prisma studio"
+    "studio": "prisma studio",
+    "seed:stress": "tsx prisma/seeds/stress.seed.ts",
+    "load-test": "tsx scripts/load-test.ts"
   },
   "keywords": [],
   "author": "",
@@ -25,13 +27,16 @@
     "zod": "^4.6.5"
   },
   "devDependencies": {
+    "@faker-js/faker": "^9.9.0",
     "@prisma/client": "^6.19.3",
+    "@types/autocannon": "^7.12.7",
     "@types/bcrypt": "^6.0.0",
     "@types/cookie-parser": "^1.4.10",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^26.4.1",
+    "autocannon": "^9.0.0",
     "nodemon": "^3.1.14",
     "prisma": "^6.19.3",
     "ts-node": "^10.9.2",
