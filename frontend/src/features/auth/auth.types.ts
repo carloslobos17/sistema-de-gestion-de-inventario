@@ -1,5 +1,5 @@
 // src/features/auth/auth.types.ts
-// Tipos del inicio de sesión y del usuario logueado.
+// Tipos del inicio de sesión, del usuario logueado y del estado de la sesión.
 
 export interface LoginCredentials {
     username: string;
@@ -21,11 +21,31 @@ export interface AuthUser {
     can_manage_structure: boolean;
 }
 
-export interface LoginResponse {
+// Respuesta de /auth/login y /auth/refresh (el refresh token viaja en la cookie, no aquí)
+export interface SessionResponse {
     message: string;
     data: {
         user: AuthUser;
         accessToken: string;
-        refreshToken: string;
     };
+}
+
+// loading = se está recuperando la sesión al abrir la app (F5)
+export type SessionStatus = 'loading' | 'authenticated' | 'anonymous';
+
+// Por qué terminó la sesión (para el mensaje del login)
+export type SessionEndReason = 'logout' | 'expired' | 'idle';
+
+export interface SessionState {
+    status: SessionStatus;
+    user: AuthUser | null;
+    accessToken: string | null;
+    tokenReceivedAt: number | null; // cuándo llegó el access token (para renovarlo con tiempo)
+    endReason: SessionEndReason | null;
+}
+
+export interface IdleWarningDialogProps {
+    secondsLeft: number;
+    onStay: () => void;
+    onLogout: () => void;
 }

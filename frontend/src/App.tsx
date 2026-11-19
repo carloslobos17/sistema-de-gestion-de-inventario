@@ -3,6 +3,7 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { Toaster } from "sonner";
 import { AppLayout } from "./components/layout/AppLayout";
 import { ProtectedRoute } from "./routes/ProtectedRoute";
+import { GuestRoute } from "./routes/GuestRoute";
 import { LoginPage } from "./pages/LoginPage";
 import { DashboardPage } from "./pages/DashboardPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
@@ -19,8 +20,10 @@ function App() {
             <Toaster position="top-right" richColors closeButton />
 
             <Routes>
-                {/* 1. Rutas públicas */}
-                <Route path="/login" element={<LoginPage />} />
+                {/* 1. Rutas públicas: con sesión activa, GuestRoute manda al dashboard */}
+                <Route element={<GuestRoute />}>
+                    <Route path="/login" element={<LoginPage />} />
+                </Route>
 
                 {/* 2. Rutas protegidas: exigen sesión */}
                 <Route element={<ProtectedRoute />}>

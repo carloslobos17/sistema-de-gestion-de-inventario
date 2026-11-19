@@ -20,6 +20,7 @@ import {
     DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { useCurrentUser } from "../../features/auth/hooks/useCurrentUser";
+import { useLogout } from "../../features/auth/hooks/useLogout";
 import { ADMIN_ONLY, hasAnyRole } from "../../features/auth/auth.roles";
 import { MegaMenuItem } from "./MegaMenuItem";
 import { NAV_GROUPS } from "./navigation.config";
@@ -29,6 +30,7 @@ export function AppHeader() {
     const navigate = useNavigate();
     const { pathname } = useLocation();
     const currentUser = useCurrentUser();
+    const logout = useLogout();
 
     const fullName = currentUser ? `${currentUser.first_name} ${currentUser.last_name}` : "";
     const role = currentUser?.role ?? "";
@@ -39,9 +41,9 @@ export function AppHeader() {
     const navGroups = useMemo(() => filterNavGroupsByRole(NAV_GROUPS, roleId), [roleId]);
     const isAdmin = hasAnyRole(roleId, ADMIN_ONLY);
 
+    // Cierra la sesión en el servidor y en todas las pestañas; ProtectedRoute lleva al login
     function handleLogout() {
-        localStorage.clear();
-        navigate("/login");
+        void logout();
     }
 
     return (
