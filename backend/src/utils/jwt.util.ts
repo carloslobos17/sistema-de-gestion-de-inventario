@@ -1,39 +1,29 @@
 // src/utils/jwt.util.ts
-import jwt, { SignOptions } from 'jsonwebtoken';
-import { JwtPayload } from '../modules/auth/auth.types';
+// Firma y verifica el access token (JWT de vida corta). El refresh token ya no es JWT: ver auth/refresh-token.util.ts
+import jwt, { type SignOptions } from 'jsonwebtoken';
+import type { JwtPayload } from '../modules/auth/auth.types';
 
-export const generateTokens = (payload: JwtPayload) => {
-    const accessSecret = process.env.JWT_ACCESS_SECRET;
-    const refreshSecret = process.env.JWT_REFRESH_SECRET;
+const DEFAULT_ACCESS_EXPIRES_IN = '15m';
 
-    if (!accessSecret || !refreshSecret) {
-        throw new Error('FATAL ERROR: Las variables de entorno para JWT no están definidas.');
-    }
+// Se leen al usarse (no al importar) para no depender del orden en que se carga el .env
+function getAccessSecret(): string {
+    const secret = process.env.JWT_ACCESS_SECRET;
+    if (!secret) throw new Error('Falta JWT_ACCESS_SECRET en el .env');
+    return secret;
+}
 
-    const accessOptions: SignOptions = {
-        expiresIn: (process.env.JWT_ACCESS_EXPIRES_IN || '15m') as SignOptions['expiresIn']
-    };
+function getAccessExpiresIn(): SignOptions['expiresIn'] {
+    return (process.env.JWT_ACCESS_EXPIRES_IN ?? DEFAULT_ACCESS_EXPIRES_IN) as SignOptions['expiresIn'];
+}
 
-    const refreshOptions: SignOptions = {
-        expiresIn: (process.env.JWT_REFRESH_EXPIRES_IN || '30m') as SignOptions['expiresIn']
-    };
+export function generateAccessToken(payload: JwtPayload): string {
+    return jwt.sign({ userId: payload.userId, roleId: payload.roleId }, getAccessSecret(), {
+        expiresIn: getAccessExpiresIn(),
+    });
+}
 
-    const accessToken = jwt.sign(payload, accessSecret, accessOptions);
-    const refreshToken = jwt.sign(payload, refreshSecret, refreshOptions);
-
-
-    const { exp } = jwt.decode(refreshToken) as { exp: number };
-    const refreshExpiresAt = new Date(exp * 1000);
-
-    return { accessToken, refreshToken, refreshExpiresAt };
-};
-
-export const verifyAccessToken = (token: string): JwtPayload => {
-    const accessSecret = process.env.JWT_ACCESS_SECRET;
-
-    if (!accessSecret) {
-        throw new Error('FATAL ERROR: JWT_ACCESS_SECRET no está definido.');
-    }
-
-    return jwt.verify(token, accessSecret) as JwtPayload;
-};
+// Lanza error si el token es falso o venció (el middleware responde 401)
+export function verifyAccessToken(token: string): JwtPayload {
+    const decoded = jwt.verify(token, getAccessSecret()) as JwtPayload;
+    return { userId: decoded.userId, roleId: decoded.roleId };
+}

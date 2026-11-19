@@ -1,6 +1,7 @@
 // src/app.ts
 import express, { Request, Response } from 'express';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 import authRoutes from './modules/auth/auth.routes';
 import userRoutes from './modules/users/user.routes';
 import brandRoutes from './modules/brands/brand.routes';
@@ -14,9 +15,17 @@ import customerRoutes from './modules/customers/customer.routes';
 
 const app = express();
 
+// CORS solo si el frontend vive en otro dominio (CORS_ORIGINS en el .env, separados por coma).
+// Con el proxy de Vite o con nginx, frontend y backend comparten dominio y no hace falta.
+const corsOrigins = (process.env.CORS_ORIGINS ?? '')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+if (corsOrigins.length > 0) app.use(cors({ origin: corsOrigins, credentials: true }));
+
 // Middlewares globales
-app.use(cors());
 app.use(express.json());
+app.use(cookieParser()); // lee la cookie httpOnly del refresh token
 
 // Health Check (Verificación de estado)
 app.get('/api/health', (req: Request, res: Response) => {
@@ -28,7 +37,7 @@ app.get('/api/health', (req: Request, res: Response) => {
 });
 
 // Rutas de la API
-app.use('/api/auth', authRoutes); // login
+app.use('/api/auth', authRoutes); // login, refresh y logout
 
 app.use('/api/users', userRoutes); // lista de usuarios (protegida por token)
 app.use('/api/brands', brandRoutes);
@@ -40,4 +49,4 @@ app.use('/api/economic-activities', economicActivityRoutes);
 app.use('/api/payment-methods', paymentMethodRoutes);
 app.use('/api/customers', customerRoutes);
 
-export default app; // Exportamos la app configurada 
+export default app; // Exportamos la app configurada

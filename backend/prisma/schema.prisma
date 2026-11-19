@@ -75,6 +75,13 @@ enum Gender {
   F
 }
 
+enum RevokeReason {
+  ROTATED
+  LOGOUT
+  SESSION_LIMIT
+  SECURITY
+}
+
 // ==========================================
 // MÓDULO DE SEGURIDAD Y ACCESO
 // ==========================================
@@ -98,22 +105,27 @@ model User {
   is_active     Boolean  @default(true)
   created_at    DateTime @default(now())
 
-  role          Role          @relation(fields: [role_id], references: [id])
-  refresh_token RefreshToken?
+  role           Role           @relation(fields: [role_id], references: [id])
+  refresh_tokens RefreshToken[]
 
   @@index([is_active, created_at]) // listado paginado: filtra por estado, ordena por fecha
   @@map("users")
 }
 
+// Sesiones activas: solo se guarda la huella SHA-256 del refresh token, nunca el token
 model RefreshToken {
-  id         Int      @id @default(autoincrement())
-  user_id    Int      @unique
-  token      String   @unique @db.VarChar(512)
-  expires_at DateTime
-  is_revoked Boolean  @default(false)
+  id                 Int           @id @default(autoincrement())
+  user_id            Int
+  token_hash         String        @unique @db.Char(64)
+  expires_at         DateTime // vence por inactividad (se extiende en cada renovación)
+  session_expires_at DateTime // fin de la jornada: no se extiende, se hereda al rotar
+  revoked_at         DateTime? // null = activa; con fecha = ya no sirve
+  revoked_reason     RevokeReason? // por qué se cerró (solo ROTATED cuenta para detectar robo)
+  created_at         DateTime      @default(now())
 
   user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
+  @@index([user_id, revoked_at]) // revocar todas las sesiones de un usuario
   @@map("refresh_tokens")
 }
 
