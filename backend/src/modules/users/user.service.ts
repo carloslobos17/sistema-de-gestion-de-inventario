@@ -1,6 +1,7 @@
 // src/modules/users/user.service.ts
 import bcrypt from 'bcrypt';
 import { UserRepository } from './user.repository';
+import { refreshTokenRepository } from '../auth/refresh-token.repository'; // ← NUEVO: las sesiones viven en auth
 import { AppError } from '../../utils/AppError';
 import type { CreateUserInput, UpdateUserInput } from './user.schema';
 import type { UpdateUserData, UserListed, UserFilters } from './user.types';
@@ -66,7 +67,7 @@ export class UserService {
 
         // Si se cambió la contraseña o se desactivó, se cierran sus sesiones abiertas
         if (password || data.is_active === false) {
-            await this.userRepository.revokeAllRefreshTokens(id);
+            await refreshTokenRepository.revokeAllForUser(id); // ← CAMBIO
         }
 
         return updated;

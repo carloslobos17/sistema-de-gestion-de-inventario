@@ -42,10 +42,3 @@ export interface UserFilters {
     is_active?: boolean; // filtrar activos / inactivos
 }
 
-export interface RefreshTokenData {
-    id: number;
-    user_id: number;
-    token: string;
-    expires_at: Date;
-    is_revoked: boolean;
-}

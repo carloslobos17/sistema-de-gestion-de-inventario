@@ -4,7 +4,11 @@ export interface RequireRoleProps {
     redirectTo?: string; // a dónde mandar si no tiene permiso (por defecto /dashboard)
 }
 
-
 export interface RequireStructurePermissionProps {
     redirectTo?: string; // a dónde mandar si no tiene can_manage_structure (por defecto /dashboard)
+}
+
+// Página que el usuario quería abrir antes de que lo mandaran al login
+export interface LoginRedirectState {
+    from?: { pathname: string; search?: string };
 }

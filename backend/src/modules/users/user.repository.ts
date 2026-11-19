@@ -1,10 +1,10 @@
 // src/modules/users/user.repository.ts
+import { RevokeReason } from '@prisma/client';
 import { prisma } from '../../config/db';
 import { getSkip, toPaginationMeta } from '../../utils/pagination';
 import type { PaginatedResult, PaginationParams } from '../../types/pagination.types';
 import type {
     UserWithCredentials,
-    RefreshTokenData,
     UserListed,
     CreateUserData,
     UpdateUserData,
@@ -103,9 +103,10 @@ export class UserRepository {
                 where: { id },
                 data: { is_active: false }
             }),
+            // Solo las sesiones abiertas: las ya cerradas conservan su fecha de cierre
             prisma.refreshToken.updateMany({
-                where: { user_id: id },
-                data: { is_revoked: true }
+                where: { user_id: id, revoked_at: null },
+                data: { revoked_at: new Date(), revoked_reason: RevokeReason.SECURITY }
             })
         ]);
     }
@@ -152,46 +153,5 @@ export class UserRepository {
         ]);
 
         return { data: rows.map(flattenRole), meta: toPaginationMeta(pagination, total) };
-    }
-
-    // Guardar o actualizar el refresh token del usuario
-    async saveRefreshToken(userId: number, token: string, expiresAt: Date): Promise<void> {
-        await prisma.refreshToken.upsert({
-            where: { user_id: userId },
-            update: {
-                token,
-                expires_at: expiresAt,
-                is_revoked: false
-            },
-            create: {
-                user_id: userId,
-                token,
-                expires_at: expiresAt,
-                is_revoked: false
-            }
-        });
-    }
-
-    // Buscar un refresh token en la base de datos
-    async findRefreshToken(token: string): Promise<RefreshTokenData | null> {
-        return prisma.refreshToken.findUnique({
-            where: { token }
-        });
-    }
-
-    // Revocar un refresh token (para logout o cambio de turno)
-    async revokeRefreshToken(token: string): Promise<void> {
-        await prisma.refreshToken.update({
-            where: { token },
-            data: { is_revoked: true }
-        });
-    }
-
-    // Revocar todas las sesiones de un usuario (al cambiarle la contraseña o desactivarlo)
-    async revokeAllRefreshTokens(userId: number): Promise<void> {
-        await prisma.refreshToken.updateMany({
-            where: { user_id: userId },
-            data: { is_revoked: true }
-        });
     }
 }
