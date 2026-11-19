@@ -1,11 +1,43 @@
 // src/modules/customers/customer.repository.ts
+import { Prisma } from '@prisma/client';
 import { prisma } from '../../config/db';
-import { getSkip, toPaginationMeta } from '../../utils/pagination';
+import { toPaginationMeta } from '../../utils/pagination';
+import { findPageIds, sortByIds } from '../../utils/listQuery';
+import { escapeLike, formatPhonePrefix, parseSearchTerm } from '../../utils/search';
 import type { PaginatedResult, PaginationParams } from '../../types/pagination.types';
 import type { Customer, CustomerData, CustomerFilters, UpdateCustomerData } from './customer.types';
 
-// Tipo del "where" de Prisma para clientes, sacado de tu propio cliente
-type CustomerWhere = NonNullable<NonNullable<Parameters<typeof prisma.customer.findMany>[0]>['where']>;
+// Condiciones SQL del listado. Cada búsqueda usa su propio índice (ver utils/search.ts).
+// Por defecto lista solo activos: así el orden por nombre usa el índice (is_active, name).
+function buildListConditions(filters: CustomerFilters): Prisma.Sql[] {
+    const conditions: Prisma.Sql[] = [Prisma.sql`is_active = ${filters.is_active ?? true}`];
+
+    if (filters.customer_type) {
+        conditions.push(Prisma.sql`customer_type = ${filters.customer_type}`);
+    }
+
+    if (filters.search) {
+        const term = parseSearchTerm(filters.search);
+
+        if (term.kind === 'digits') {
+            // DUI, NIT, NRC o teléfono que EMPIEZA con esos dígitos (índices en las 3 columnas)
+            const prefix = `${term.digits}%`;
+            const phonePrefix = `${formatPhonePrefix(term.digits)}%`;
+            conditions.push(Prisma.sql`(document_number LIKE ${prefix} OR nrc LIKE ${prefix}
+                OR phone LIKE ${prefix} OR phone LIKE ${phonePrefix})`);
+        } else if (term.kind === 'email') {
+            conditions.push(Prisma.sql`email LIKE ${`${escapeLike(term.text)}%`}`);
+        } else if (term.fullText) {
+            // Nombre o nombre comercial, por palabras (índice FULLTEXT)
+            conditions.push(Prisma.sql`MATCH(name, trade_name) AGAINST (${term.fullText} IN BOOLEAN MODE)`);
+        } else {
+            // Texto muy corto (ej. "al"): nombre que empieza con eso (índice is_active, name)
+            conditions.push(Prisma.sql`name LIKE ${`${escapeLike(term.prefix)}%`}`);
+        }
+    }
+
+    return conditions;
+}
 
 // Campos del cliente + su ubicación y actividad (para mostrarlos sin otra consulta)
 const CUSTOMER_SELECT = {
@@ -61,44 +93,16 @@ function toCustomer(row: CustomerRow): Customer {
 }
 
 export class CustomerRepository {
-    // Una página del listado + el total. Usa el índice (is_active, name).
+    // Una página del listado + el total. Paso 1: ids y total con índices; paso 2: datos de esos ids.
     async findPage(filters: CustomerFilters, pagination: PaginationParams): Promise<PaginatedResult<Customer>> {
-        const where: CustomerWhere = {};
+        const { ids, total } = await findPageIds('customers', buildListConditions(filters), pagination);
 
-        if (filters.is_active !== undefined) {
-            where.is_active = filters.is_active;
-        }
+        const rows =
+            ids.length > 0
+                ? await prisma.customer.findMany({ where: { id: { in: ids } }, select: CUSTOMER_SELECT })
+                : [];
 
-        if (filters.customer_type) {
-            where.customer_type = filters.customer_type;
-        }
-
-        // Busca por nombre, nombre comercial, correo y teléfono; si el texto trae números, también por documento y NRC
-        if (filters.search) {
-            const digits = filters.search.replace(/\D/g, '');
-            where.OR = [
-                { name: { contains: filters.search } },
-                { trade_name: { contains: filters.search } },
-                { email: { contains: filters.search } },
-                { phone: { contains: filters.search } },
-                { document_number: { contains: filters.search.replace(/\s+/g, '') } },
-                ...(digits ? [{ document_number: { contains: digits } }, { nrc: { contains: digits } }] : [])
-            ];
-        }
-
-        // Las dos consultas en una transacción para que el total cuadre con los datos
-        const [rows, total] = await prisma.$transaction([
-            prisma.customer.findMany({
-                where,
-                select: CUSTOMER_SELECT,
-                orderBy: { name: 'asc' },
-                skip: getSkip(pagination),
-                take: pagination.limit
-            }),
-            prisma.customer.count({ where })
-        ]);
-
-        return { data: rows.map(toCustomer), meta: toPaginationMeta(pagination, total) };
+        return { data: sortByIds(rows, ids).map(toCustomer), meta: toPaginationMeta(pagination, total) };
     }
 
     async findById(id: number): Promise<Customer | null> {
